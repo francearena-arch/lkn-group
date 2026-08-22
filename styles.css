@@ -62,3 +62,32 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(11,99,182,.32);outli
 .whatsappIcon{color:#20a85a}
 .whatsappBtn:hover{border-color:#8bcfa8;background:#f7fcf9}
 @media(max-width:430px){.contactActions{max-width:none;margin-top:30px}.contactActions .btn{padding:0 16px;font-size:.94rem}}
+
+/* Release V4.1: robust stacked contact CTAs + inline SVG icons */
+.contactFormMock .contactActions{display:flex !important;flex-direction:column !important;align-items:stretch !important;gap:16px !important;margin-top:32px !important;max-width:390px !important}
+.contactFormMock .contactActions .contactActionBtn{display:flex !important;width:100% !important;justify-content:flex-start !important;align-items:center !important;gap:12px !important;flex:none !important}
+.contactFormMock .contactActions svg{display:block !important;flex:none !important}
+@media(max-width:760px){.contactFormMock .contactActions{max-width:none !important}}
+
+
+/* Release V5: mobile hero polish, clean word wrapping and CTA fit */
+.mobileCtaLabel{display:none}
+.pageHero h1{hyphens:none !important;overflow-wrap:normal !important;word-break:normal !important;text-wrap:balance;max-width:14ch}
+@media(max-width:760px){
+  .heroVisual{height:285px !important;min-height:285px !important}
+  .heroVisual img{height:285px !important;min-height:285px !important}
+  .pageHero h1{font-size:clamp(2.25rem,9.5vw,3.05rem);line-height:1.03;max-width:100%}
+  .heroActions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:10px}
+  .heroActions .btn{min-width:0;padding:0 10px;font-size:clamp(.78rem,3.25vw,.95rem);white-space:nowrap}
+  .desktopCtaLabel{display:none}
+  .mobileCtaLabel{display:inline}
+}
+@media(max-width:430px){
+  .heroActions{grid-template-columns:minmax(0,1fr) minmax(0,1.22fr)}
+  .heroActions .btn{padding:0 8px;font-size:.82rem}
+  .heroVisual,.heroVisual img{height:245px !important;min-height:245px !important}
+  .pageHero h1{font-size:clamp(2.1rem,10.5vw,2.65rem)}
+}
+
+
+/* Release V6: repository hygiene; V5 responsive UX retained */
