@@ -113,3 +113,9 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(11,99,182,.32);outli
     max-width:none;
   }
 }
+
+/* Release V9: homepage competence section */
+.headlineLine { display: block; }
+@media (min-width: 761px) {
+  .headlineLine { white-space: nowrap; }
+}

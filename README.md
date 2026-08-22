@@ -1,9 +1,9 @@
-# LKN Group Website – Release V8
+# LKN Group Website – Release V9
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
 ## Current release
-**V8**
+**V9**
 
 ## Website structure
 - Startseite
@@ -15,11 +15,14 @@ Static, responsive multi-page corporate website for LKN Group, deployed via GitH
 - Impressum
 - Datenschutz
 
-## V8 changes
-- Removed the redundant `LKN GROUP` label from the homepage hero
-- Removed the redundant `Persönlich · Kompetent · Diskret · Verlässlich` line below the homepage CTAs
-- Kept `Drei Kompetenzbereiche.` together on mobile for a cleaner section headline
-- Updated stylesheet cache version to V8
+## V9 changes
+- Renamed the homepage competence-section label to `UNSERE LEISTUNGSBEREICHE`
+- Structured the competence headline into two clean desktop lines:
+  - `Drei Kompetenzbereiche.`
+  - `Ein verlässlicher Partner.`
+- Preserved responsive behavior on mobile
+- Restored `styles.css`, `script.js` and `.nojekyll` to the release package for complete GitHub repository maintenance
+- Updated stylesheet cache version to V9
 
 ## Deployment
 GitHub Pages
