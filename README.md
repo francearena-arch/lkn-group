@@ -1,4 +1,4 @@
-# LKN Group Website – Release V9
+# LKN Group Website – Release V10
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
@@ -55,3 +55,8 @@ GitHub Pages
 
 ## Notes
 The legal pages are working drafts for a Swiss corporate website and should be reviewed against the final company details, actual data-processing activities, analytics tools, forms, cookies and third-party services before production launch.
+
+## V10 changes
+- Hero label: `LKN GROUP`
+- Competence section label: `UNSERE LEISTUNGSBEREICHE`
+- Updated cache version to V10
