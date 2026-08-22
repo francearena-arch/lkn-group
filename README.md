@@ -1,9 +1,9 @@
-# LKN Group Website – Release V7
+# LKN Group Website – Release V8
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
 ## Current release
-**V7**
+**V8**
 
 ## Website structure
 - Startseite
@@ -15,12 +15,11 @@ Static, responsive multi-page corporate website for LKN Group, deployed via GitH
 - Impressum
 - Datenschutz
 
-## V7 changes
-- Standardized the bottom consultation CTA section across Startseite, Treuhand, Immobilien, Versicherungen and Über uns
-- Removed telephone number, email address and postal address from these CTA cards
-- Kept a single prominent `Erstgespräch vereinbaren` button linking to the Kontakt page
-- Added shared styling so the CTA card has the same appearance and spacing across all relevant pages
-- Updated stylesheet cache version to V7
+## V8 changes
+- Removed the redundant `LKN GROUP` label from the homepage hero
+- Removed the redundant `Persönlich · Kompetent · Diskret · Verlässlich` line below the homepage CTAs
+- Kept `Drei Kompetenzbereiche.` together on mobile for a cleaner section headline
+- Updated stylesheet cache version to V8
 
 ## Deployment
 GitHub Pages
