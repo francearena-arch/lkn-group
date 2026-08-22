@@ -1,9 +1,9 @@
-# LKN Group Website – Release V6
+# LKN Group Website – Release V7
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
 ## Current release
-**V6**
+**V7**
 
 ## Website structure
 - Startseite
@@ -15,17 +15,12 @@ Static, responsive multi-page corporate website for LKN Group, deployed via GitH
 - Impressum
 - Datenschutz
 
-## V6 changes
-- Consolidated all V5 responsive and headline refinements
-- Kept both homepage hero CTAs on one line on mobile
-- Prevented unwanted mid-word headline hyphenation
-- Refined long page headlines for cleaner desktop and mobile layouts
-- Fixed excess whitespace below the mobile hero image
-- Preserved responsive burger navigation with centered mobile logo
-- Preserved direct email and WhatsApp consultation CTAs with inline SVG icons
-- Added and synchronized this README.md for clean repository documentation
-- Removed obsolete README.txt
-- Added `.nojekyll` for an explicit static GitHub Pages deployment
+## V7 changes
+- Standardized the bottom consultation CTA section across Startseite, Treuhand, Immobilien, Versicherungen and Über uns
+- Removed telephone number, email address and postal address from these CTA cards
+- Kept a single prominent `Erstgespräch vereinbaren` button linking to the Kontakt page
+- Added shared styling so the CTA card has the same appearance and spacing across all relevant pages
+- Updated stylesheet cache version to V7
 
 ## Deployment
 GitHub Pages
