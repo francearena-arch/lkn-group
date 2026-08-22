@@ -15,3 +15,8 @@ V3 changes:
 GitHub Pages:
 Branch: main
 Folder: / (root)
+
+Release V4
+- Contact CTAs stacked vertically with improved spacing
+- Added email and WhatsApp icons
+- Removed redundant WhatsApp contact card
