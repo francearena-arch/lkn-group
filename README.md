@@ -1,9 +1,16 @@
-# LKN Group Website – Release V10
+# LKN Group Website – Release V11
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
 ## Current release
-**V9**
+**V11**
+
+## V11 changes
+- Standardized the three homepage service-area tags
+- `Treuhand`, `Immobilien` and `Versicherungen` now use the same light-blue visual treatment
+- Removed the grey muted styling from Immobilien and Versicherungen
+- Updated stylesheet cache version to V11
+- No other layout, content or functionality changes
 
 ## Website structure
 - Startseite
@@ -15,15 +22,6 @@ Static, responsive multi-page corporate website for LKN Group, deployed via GitH
 - Impressum
 - Datenschutz
 
-## V9 changes
-- Renamed the homepage competence-section label to `UNSERE LEISTUNGSBEREICHE`
-- Structured the competence headline into two clean desktop lines:
-  - `Drei Kompetenzbereiche.`
-  - `Ein verlässlicher Partner.`
-- Preserved responsive behavior on mobile
-- Restored `styles.css`, `script.js` and `.nojekyll` to the release package for complete GitHub repository maintenance
-- Updated stylesheet cache version to V9
-
 ## Deployment
 GitHub Pages
 
@@ -32,7 +30,7 @@ GitHub Pages
 - Entry point: `index.html`
 
 ## Main files
-- `index.html` – homepage
+- `index.html`
 - `treuhand.html`
 - `immobilien.html`
 - `versicherungen.html`
@@ -44,19 +42,14 @@ GitHub Pages
 - `script.js`
 - `lkn-logo.jpg`
 - `hero-office.jpg`
+- `.nojekyll`
 
 ## Release workflow
-1. Extract the release ZIP locally.
+1. Extract the ZIP locally.
 2. Upload all files directly to the repository root.
-3. Replace existing files when prompted.
-4. Delete obsolete files that are no longer part of the release.
-5. Commit changes to `main`.
-6. GitHub Pages deploys automatically.
+3. Replace the existing files.
+4. Commit the changes to `main`.
+5. GitHub Pages deploys automatically.
 
 ## Notes
-The legal pages are working drafts for a Swiss corporate website and should be reviewed against the final company details, actual data-processing activities, analytics tools, forms, cookies and third-party services before production launch.
-
-## V10 changes
-- Hero label: `LKN GROUP`
-- Competence section label: `UNSERE LEISTUNGSBEREICHE`
-- Updated cache version to V10
+The legal pages remain working drafts and should be reviewed against the final company details and actual data-processing setup before production launch.
