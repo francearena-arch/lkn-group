@@ -47,3 +47,9 @@
 .qrArea p{font-size:12px;margin-top:14px}
 .mfaSecret{display:block;word-break:break-all;font-size:12px;color:var(--navy);background:white;border-radius:6px;padding:10px}
 .mfaNote{font-size:12px;color:var(--muted);margin-top:22px}
+
+/* LKN login: equal, left-aligned self-service links */
+.login .forgotLink{display:block;margin:14px 0 0;text-align:left;font-size:14px;font-weight:700;text-decoration:underline;text-underline-offset:3px;color:var(--blue)}
+.login .otpbox{margin-top:10px;text-align:left}
+.login .otpbox>.linkbtn{display:block;margin:0;padding:0;background:transparent;border:0;text-align:left;color:var(--blue);font-size:14px;font-weight:700;text-decoration:underline;text-underline-offset:3px;line-height:1.6}
+.login .otpbox>div{margin-top:14px;text-align:left}
