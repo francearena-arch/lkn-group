@@ -1,3 +1,4 @@
+import { objectKeyBelongsToClient } from '../lib/tenant-access.mjs';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { neon } from '@neondatabase/serverless';
@@ -68,6 +69,10 @@ try {
     assert.equal(decision.allowed, t.allow, t.name);
     if (!t.allow) assert.equal(decision.status, t.status, t.name);
   }
+  assert.equal(objectKeyBelongsToClient(clientA+'/one.pdf',clientA),true);
+  assert.equal(objectKeyBelongsToClient(clientB+'/one.pdf',clientA),false);
+  assert.equal(objectKeyBelongsToClient(clientA+'/../bad.pdf',clientA),false);
+  console.log('SECURITY: Cross-client storage key and traversal checks PASS');
   console.log('SECURITY: Tenant selection positive and negative cases PASS (' + testCases.length + ' cases)');
 
   const objects = [{key:keys[0], clientId:clientA, id:testIds[0], body:bodyA}, {key:keys[1], clientId:clientB, id:testIds[1], body:bodyB}];
