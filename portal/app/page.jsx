@@ -3,12 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { createAuthClient } from '@neon/auth/next';
 
 const authClient = createAuthClient();
-const examples = [
-  { id: 'sample-a', title: 'Steuererklärung 2025.pdf', category: 'Steuern', date: '12. November 2026' },
-  { id: 'sample-b', title: 'Jahresabschluss 2025.pdf', category: 'Buchhaltung', date: '5. November 2026' },
-  { id: 'sample-c', title: 'Lohnabrechnung Oktober.pdf', category: 'Lohnwesen', date: '31. Oktober 2026' }
-];
-
 export default function Page() {
   const [mode, setMode] = useState('login');
   const [user, setUser] = useState(null);
@@ -237,7 +231,13 @@ export default function Page() {
         return;
       }
       setSelectedFile(null);
-      setUploadMessage('Dokument sicher hochgeladen.');
+      if (isAdmin) {
+        const note=result.notification;
+        if (!note) setUploadMessage('Dokument hochgeladen. Benachrichtigungsstatus nicht verfügbar.');
+        else if (note.queued === 0) setUploadMessage('Dokument hochgeladen. Keine verifizierte Kunden-E-Mail für eine Benachrichtigung hinterlegt.');
+        else if (note.delivery?.sent === note.queued) setUploadMessage('Dokument hochgeladen. E-Mail-Benachrichtigung versendet.');
+        else setUploadMessage('Dokument hochgeladen. E-Mail-Benachrichtigung vorgemerkt; Versand noch ausstehend.');
+      } else setUploadMessage('Dokument sicher hochgeladen.');
       await refreshDocuments(isAdmin ? selectedClientId : '');
     } catch {
       setUploadMessage('Upload derzeit nicht möglich.');
@@ -278,7 +278,7 @@ export default function Page() {
           <form onSubmit={signIn}>
             <label>E-Mail-Adresse
               <input type="email" autoComplete="username" required value={login}
-                onChange={e => setLogin(e.target.value)} placeholder="name@beispiel.ch"/>
+                onChange={e => setLogin(e.target.value)} />
             </label>
             <label>Passwort
               <input type="password" autoComplete="current-password" required value={password}
@@ -289,7 +289,6 @@ export default function Page() {
           </form>
           <a className="forgotLink" href="/passwort-vergessen">Passwort vergessen?</a>
           <div className="otpbox">
-            <p>Alternativ ohne Passwort anmelden</p>
             <button type="button" className="linkbtn" onClick={sendOtp} disabled={busy}>Einmalcode per E-Mail senden</button>
             {otpSent && <div>
               <label>Einmalcode
@@ -395,8 +394,8 @@ export default function Page() {
     </main>
 
     <footer className="footer">
-      <span>© LKN Group · Kundenportal Demo</span>
-      <span>Pilotbetrieb · Vertrauliche Daten</span>
+      <span>© LKN Group · Kundenportal</span>
+      <span>Vertraulicher Dokumentenaustausch</span>
     </footer>
   </>;
 }
