@@ -31,7 +31,7 @@ const bodyB = Buffer.from('%PDF-1.4\n% TEST TENANT B\n%%EOF\n');
 
 async function canDownload(userId, documentId) {
   return sql.query(
-    "SELECT d.id,d.client_id,d.object_key FROM public.portal_documents d INNER JOIN public.portal_clients c ON c.id=d.client_id WHERE d.id=$1 AND c.status='active' AND d.object_key IS NOT NULL AND (EXISTS (SELECT 1 FROM public.portal_admins a WHERE a.user_id=$2 AND a.enabled=true) OR EXISTS (SELECT 1 FROM public.portal_memberships m WHERE m.user_id=$2 AND m.client_id=d.client_id)) LIMIT 1",
+    "SELECT d.id,d.client_id,d.object_key FROM public.portal_documents d INNER JOIN public.portal_clients c ON c.id=d.client_id WHERE d.id=$1 AND c.status='active' AND d.object_key IS NOT NULL AND (EXISTS (SELECT 1 FROM public.portal_admins a WHERE a.user_id=$2 AND a.enabled=true) OR EXISTS (SELECT 1 FROM public.portal_memberships m WHERE m.user_id=$2 AND m.client_id=d.client_id AND m.role='client')) LIMIT 1",
     [documentId, userId]
   );
 }
