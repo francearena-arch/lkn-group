@@ -27,7 +27,7 @@ Monatliche Pauschale CHF 350 (kalkuliertes Angebot, kein Nachweis realer Anbiete
 - Aktiver Repository-Hauptbranch: `main`; vorbereiteter Portal-Branch: `release/lkn-kundenportal-v1`.
 - Vercel-Projektname: `lkn-kundenportal`; Root Directory: `portal`.
 - `portal/vercel.json` deaktiviert automatische Git-Deployments dauerhaft; nach dem **ersten manuellen API-Release** werden reine Website-Commits kein Portal-Deployment mehr auslösen. Preview-Deployments sind vorläufig deaktiviert.
-- Vercel Hobby Limit (100 kostenlose API-Deployments/Tag) zuvor erreicht; beim nächsten Zeitpunkt **einen einzelnen manuellen REST-API-Deploy** aus dem zuvor gemergten PR durchführen (nicht zusätzlich über Dashboard deployen), anschliessend Build/Runtime/Seiten und Sicherheit prüfen.
+- Vercel Hobby Limit (100 kostenlose API-Deployments/Tag) zuvor erreicht; beim nächsten Zeitpunkt **einen einzelnen manuellen REST-API-Deploy direkt aus dem Release-Branch** durchführen, danach erst PR #1 nach `main` mergen (nicht zusätzlich über Dashboard deployen), anschliessend Build/Runtime/Seiten und Sicherheit prüfen.
 
 ## Neon Branch-Konfiguration
 - Projekt: `lkn-kundenportal` (Projekt-ID `wispy-feather-78804019`).
