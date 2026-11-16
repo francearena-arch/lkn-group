@@ -22,4 +22,4 @@ Automatisierte Mandantentrennung und private Speicherung wurden zuvor geprüft. 
 Vor dem produktiven Go-live ausschliesslich künstliche Dokumente verwenden. Details: `SECURITY.md`, `OPERATIONS.md`, `tests/README.md`.
 
 ## Deploymentdisziplin
-Die Portaländerungen auf Branch `release/lkn-kundenportal-v1` sammeln und **erst nach Abschluss** mit `main` zusammenführen. Dadurch genügt grundsätzlich ein konsolidiertes Produktions-Deployment nach Wiederfreigabe des Vercel-Kontingents. Ein Auto-Skip für unveränderte Monorepo-Ordner ist aktiviert. Preview-Deployments sind während der Sammelphase deaktiviert.
+Die Portaländerungen auf Branch `release/lkn-kundenportal-v1` sammeln und **erst nach Abschluss** mit `main` zusammenführen. Dann den Pull Request mergen und **genau ein manuelles Vercel-Produktionsdeployment über die REST-API** aus dem freigegebenen Git-Commit ausführen. `portal/vercel.json` setzt `git.deploymentEnabled=false`: automatische Deployments nach GitHub-Pushs werden damit nach Aktivierung der neuen Konfiguration dauerhaft ausgeschaltet. Preview-Deployments sind während der Sammelphase deaktiviert.
