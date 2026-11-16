@@ -15,3 +15,15 @@ Demo UI + Neon-managed authentication and database metadata. Demo mode uses fict
 4. Verify 401 for signed-out API and isolation between accounts before live use.
 
 Not production ready; no actual customer data should be used.
+
+## Passwort vergessen – Demo-Release
+- Link unterhalb von `Sicher anmelden`: `/passwort-vergessen`
+- Passwort-Reset per Neon Auth: `requestPasswordReset` und `resetPassword`
+- Rücksetzseite: `/passwort-zuruecksetzen`
+- Generische Rückmeldung unabhängig davon, ob ein Konto existiert (Schutz vor Nutzerabfrage)
+- Minimale Passwortlänge: 12 Zeichen; Passwortbestätigung; tokenbasierte Freigabe
+- Existing Neon Auth setting: revoke_sessions_on_password_reset = true
+- Bei Neon Auth ist aktuell der gemeinsame Versand `auth@mail.myneon.app` aktiv.
+- Vollständig gebrandete LKN-E-Mail-Vorlage liegt unter `templates/password-reset-email.html`, ist aber **noch nicht an den Versand angebunden**.
+- Für Markenversand benötigt: eigener verifizierter Absender, Versandprovider, authentifizierter send.magic_link-Webhook und End-to-End-Test.
+- Test nur mit freigegebenen Testadressen; keine echten Kundendaten verwenden.
