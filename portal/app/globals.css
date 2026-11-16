@@ -34,3 +34,16 @@
 .stats article{min-width:0}
 .stats strong.sm{overflow-wrap:anywhere}
 @media(max-width:600px){.adminSelector{align-items:stretch;flex-direction:column}.adminSelector label,.adminSelector select,.adminSelector>span{width:100%}.adminSelector select{flex:none}}
+
+/* Pilot branding and administrator 2FA */
+.portalLogo{width:64px;height:60px;object-fit:contain;display:block}
+.portalTitle{font-weight:800;color:var(--navy);letter-spacing:.16em;font-size:11px}
+.backWebsite{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:1px solid #b9cadf;border-radius:8px;background:#fff;text-decoration:none;color:var(--navy)!important;font-weight:800}
+.backWebsite:hover{border-color:var(--blue);background:#f0f6fd}
+.mfaCard{max-width:525px}
+.mfaCard h1{font-size:clamp(32px,5vw,44px)}
+.qrArea{text-align:center;background:var(--soft);padding:20px;border-radius:14px;margin-top:22px}
+.qrArea img{max-width:220px;display:block;margin:auto}
+.qrArea p{font-size:12px;margin-top:14px}
+.mfaSecret{display:block;word-break:break-all;font-size:12px;color:var(--navy);background:white;border-radius:6px;padding:10px}
+.mfaNote{font-size:12px;color:var(--muted);margin-top:22px}
