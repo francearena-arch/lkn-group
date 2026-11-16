@@ -2,6 +2,7 @@ import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { db, requirePortalUser, resolveClientAccess, reject, checkSameOrigin } from '../../../lib/portal';
 import { storageClient, BUCKET } from '../../../lib/storage';
 import { objectKeyBelongsToClient } from '../../../lib/tenant-access.mjs';
+import { enqueueAdminDocumentNotifications, dispatchDocumentNotifications } from '../../../lib/notifications';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -107,7 +108,20 @@ export async function POST(request) {
       try { await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: objectKey })); } catch {}
       return reject(503, 'Upload konnte nicht gespeichert werden');
     }
-    return Response.json({ ok: true, id: documentId }, {
+    let notification = { enabled: false, queued: 0 };
+    if (access.isAdmin) {
+      try {
+        notification = await enqueueAdminDocumentNotifications(sql, {
+          documentId, clientId: access.client_id, isAdmin: true
+        });
+        if (notification.queued > 0) {
+          notification.delivery = await dispatchDocumentNotifications(sql, documentId);
+        }
+      } catch {
+        notification = { enabled: true, queued: 0, reason: 'notification-enqueue-error' };
+      }
+    }
+    return Response.json({ ok: true, id: documentId, notification }, {
       status: 201,
       headers: { 'Cache-Control': 'private, no-store, max-age=0' }
     });
