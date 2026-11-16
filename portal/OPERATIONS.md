@@ -26,5 +26,5 @@ Monatliche Pauschale CHF 350 (kalkuliertes Angebot, kein Nachweis realer Anbiete
 - Nur ein konsolidierter Portal-Release statt vieler Einzeldeployments.
 - Aktiver Repository-Hauptbranch: `main`; vorbereiteter Portal-Branch: `release/lkn-kundenportal-v1`.
 - Vercel-Projektname: `lkn-kundenportal`; Root Directory: `portal`.
-- Auto-Skip für unveränderte Monorepo-Pfade und Preview-Abschaltung eingerichtet.
-- Vercel Hobby Limit (100 kostenlose API-Deployments/Tag) zuvor erreicht; beim nächsten Zeitpunkt einen einzigen Release durchführen und anschliessend Build/Runtime/Seiten und Sicherheit prüfen.
+- `portal/vercel.json` deaktiviert automatische Git-Deployments dauerhaft; nach dem **ersten manuellen API-Release** werden reine Website-Commits kein Portal-Deployment mehr auslösen. Preview-Deployments sind vorläufig deaktiviert.
+- Vercel Hobby Limit (100 kostenlose API-Deployments/Tag) zuvor erreicht; beim nächsten Zeitpunkt **einen einzelnen manuellen REST-API-Deploy** aus dem zuvor gemergten PR durchführen (nicht zusätzlich über Dashboard deployen), anschliessend Build/Runtime/Seiten und Sicherheit prüfen.
