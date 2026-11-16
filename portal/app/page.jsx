@@ -273,7 +273,7 @@ export default function Page() {
           {mode === 'portal' && isAdmin &&
             <section className="adminSelector" aria-label="Mandant auswählen">
               <label htmlFor="clientChoice">Mandant auswählen</label>
-              <select id="clientChoice" value={selectedClientId} onChange={e => chooseClient(e.target.value)}>
+              <select id="clientChoice" value={selectedClientId} disabled={uploading} onChange={e => chooseClient(e.target.value)}>
                 <option value="">Bitte Mandanten auswählen</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
