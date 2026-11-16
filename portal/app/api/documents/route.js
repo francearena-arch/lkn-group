@@ -87,8 +87,8 @@ export async function POST(request) {
       Key: objectKey,
       Body: bytes,
       ContentType: type.mime,
-      ContentLength: bytes.byteLength,
-      ServerSideEncryption: 'AES256'
+      ContentLength: bytes.byteLength
+
     }));
     try {
       await sql.query(
