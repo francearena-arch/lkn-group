@@ -119,3 +119,10 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(11,99,182,.32);outli
 @media (min-width: 761px) {
   .headlineLine { white-space: nowrap; }
 }
+
+/* Release V12: customer portal navigation */
+.portalNavLink{color:var(--navy);font-weight:800;white-space:nowrap}
+.desktopNav .portalNavLink{color:var(--blue)}
+.mobilePanel .portalNavLink{color:var(--blue);border-bottom:0}
+@media(min-width:981px) and (max-width:1210px){.desktopNav{gap:13px;font-size:.84rem}}
+@media(min-width:981px) and (max-width:1100px){.desktopNav{display:none}.navWrap{height:68px;grid-template-columns:44px 1fr 44px;gap:0}.brand{grid-column:2;justify-self:center}.mobileMenuButton{display:flex;grid-column:3;justify-self:end}}
