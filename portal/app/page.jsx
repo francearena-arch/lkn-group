@@ -21,6 +21,7 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [clients, setClients] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
   const [selectedClientId, setSelectedClientId] = useState('');
   const [clientName, setClientName] = useState('Muster Treuhand AG');
   const [rows, setRows] = useState([]);
@@ -135,6 +136,7 @@ export default function Page() {
       }
       setIsAdmin(false);
       setClients([]);
+      setClientSearch('');
       setSelectedClientId('');
       await refreshDocuments();
     } catch {
@@ -316,9 +318,10 @@ export default function Page() {
           {mode === 'portal' && isAdmin &&
             <section className="adminSelector" aria-label="Mandant auswählen">
               <label htmlFor="clientChoice">Mandant auswählen</label>
+              <input className="clientSearch" type="search" value={clientSearch} onChange={e=>setClientSearch(e.target.value)} placeholder="Mandant suchen …" aria-label="Mandant suchen"/>
               <select id="clientChoice" value={selectedClientId} disabled={uploading} onChange={e => chooseClient(e.target.value)}>
                 <option value="">Bitte Mandanten auswählen</option>
-                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {clients.filter(c=>c.name.toLocaleLowerCase('de').includes(clientSearch.trim().toLocaleLowerCase('de'))||c.id===selectedClientId).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <span>Administratorzugang – Mandanten werden strikt getrennt angezeigt.</span>
             </section>}
