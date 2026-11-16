@@ -127,9 +127,4 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(11,99,182,.32);outli
 @media(min-width:981px) and (max-width:1210px){.desktopNav{gap:13px;font-size:.84rem}}
 @media(min-width:981px) and (max-width:1100px){.desktopNav{display:none}.navWrap{height:68px;grid-template-columns:44px 1fr 44px;gap:0}.brand{grid-column:2;justify-self:center}.mobileMenuButton{display:flex;grid-column:3;justify-self:end}}
 
-/* V14 – unified official LKN roofline brand over the legacy embedded folder mark.
-   The original photographic hero asset is preserved for fallback; a separately produced
-   replacement photo can supersede it after the image asset is uploaded. */
-.heroVisual .heroBrandOverlay{position:absolute;right:2.5%;bottom:2.5%;z-index:4;width:min(43%,246px);height:42%;min-height:122px;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(250,252,255,.97);border:1px solid rgba(210,222,239,.9);box-shadow:0 12px 36px rgba(4,24,61,.19);border-radius:15px;pointer-events:none}
-.heroVisual .heroBrandOverlay img{width:100%;height:100%;min-height:0!important;max-height:100%;object-fit:contain!important;object-position:center!important}
-@media(max-width:760px){.heroVisual .heroBrandOverlay{width:min(43%,190px);height:48%;min-height:105px;padding:9px;border-radius:11px}}
+/* V15: new self-contained branded hero image replaces the original image with legacy logo. */

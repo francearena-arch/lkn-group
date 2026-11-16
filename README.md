@@ -1,10 +1,10 @@
-# LKN Group Website – V14 (16 November 2026)
+# LKN Group Website – V15 (16 November 2026)
 
 ## Veröffentlichte Website
 - GitHub Pages – Domain: `lkn-group.ch` (CNAME in Repository; DNS/SSL separat prüfen).
 - Öffentliche Seiten: Startseite, Treuhand, Immobilien, Versicherungen, Über uns, Kontakt, Impressum, Datenschutz.
 - Offizielles LKN-Logo: `lkn-logo-v2.png`, auch Favicon.
-- Ein altes Logo im ursprünglichen Fotomotiv der Startseite wird durch eine offizielle LKN-Markenplakette überdeckt. Ein vollständig neu generiertes Bildmotiv liegt separat als Austauschdatei bereit und sollte nach Upload die ursprüngliche Bilddatei ersetzen.
+- Das Hero-Fotomotiv wurde durch die selbstenthaltende Datei `hero-office-v2.svg` mit dem neuen offiziellen Dachlinienlogo ersetzt. Die ursprünglich aktive Datei mit altem Zeichen wurde aus dem Repository entfernt.
 - Kundenlogin führt vorläufig zu `https://lkn-kundenportal.vercel.app/`. Finale Subdomain `portal.lkn-group.ch` ist in Vercel registriert, braucht noch DNS beim Hosttech-Namensserver.
 
 ## Kundenportal
