@@ -99,6 +99,10 @@ export async function POST(request) {
         [user.id, access.client_id, documentId]
       );
     } catch {
+      // Roll back metadata if the audit insert failed after document creation.
+      try {
+        await sql.query("DELETE FROM public.portal_documents WHERE id=$1 AND uploaded_by=$2", [documentId, user.id]);
+      } catch {}
       try { await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: objectKey })); } catch {}
       return reject(503, 'Upload konnte nicht gespeichert werden');
     }
