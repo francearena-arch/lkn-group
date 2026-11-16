@@ -27,3 +27,13 @@ Not production ready; no actual customer data should be used.
 - Vollständig gebrandete LKN-E-Mail-Vorlage liegt unter `templates/password-reset-email.html`, ist aber **noch nicht an den Versand angebunden**.
 - Für Markenversand benötigt: eigener verifizierter Absender, Versandprovider, authentifizierter send.magic_link-Webhook und End-to-End-Test.
 - Test nur mit freigegebenen Testadressen; keine echten Kundendaten verwenden.
+
+## Demo release: Passwortwiederherstellung und Konfiguration (16.11.2026)
+- Doppelten `Passwort vergessen?`-Link im Login entfernt.
+- Weiterleitung auf `/passwort-vergessen` und Rücksetzen auf `/passwort-zuruecksetzen` bleiben erhalten.
+- Neubuild auf Vercel erfolgreich (Production).
+- Vercel-Konfiguration: `DATABASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `NEON_AUTH_BASE_URL` bleiben erforderlich; als **Sensitive** klassifiziert.
+- Neon Auth Anzeigename: `LKN Group Kundenportal`.
+- Brand-E-Mail-HTML liegt unter `templates/password-reset-email.html`.
+- **Achtung:** Der tatsächliche Versand verwendet noch Neons Shared SMTP. Zum Aktivieren der Marken-E-Mail sind ein verifizierter LKN-Absender, ein angebundener E-Mail-Anbieter und ein signaturgeprüfter Neon-Webhook nötig. Webhook derzeit absichtlich deaktiviert, damit das bestehende Rücksetzen nicht unterbrochen wird.
+- Dokumenten-Upload/-Download weiterhin deaktiviert; Auth-E2E und Mandantentrennung noch abzunehmen.
