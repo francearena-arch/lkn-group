@@ -34,3 +34,23 @@ Build-/Integrationstests im Vercel-Deployment, nur mit fiktiven Daten:
 - Passwort-Reset und gebrandeter E-Mail-Versand vollständig Ende-zu-Ende.
 
 **Status: freigegebene Demo mit Testdaten; nicht für echte Mandantenunterlagen freigeben.**
+
+
+## Pilot-Erweiterung: App-basiertes Admin-MFA
+- Die Managed-Auth-Anmeldung bleibt gemeinsame Einstiegsmöglichkeit für Mandant und Admin.
+- Einträge in `public.portal_admins` bestimmen serverseitig die Adminberechtigung.
+- Für Admins: Authenticator-Einrichtung mit verschlüsseltem AES-256-GCM TOTP-Secret, Prüfung des sechsstelligen Codes und 8 Stunden Ablaufzeit der zusätzlichen Session. Token ist HttpOnly, Secure, SameSite=Strict und an die Neon-Auth-Session-ID gebunden.
+- Bei fehlendem MFA verweigern `/api/clients`, `/api/documents` (GET/POST) und `/api/documents/[id]/download` Adminzugriff.
+- MFA-Setup verwendet CSRF-geprüften POST; maximal 5 Fehlversuche in 10 Minuten.
+- Die **erste reale MFA-Einrichtung, Code-Prüfung, Session-Erneuerung und Wiederherstellung** muss noch mit einem angemeldeten Admin im Browser abgeschlossen werden.
+
+## Wiederherstellung und Backups
+- Neon-Datenbanksnapshot `snap-royal-base-baiiu22p` wurde erfolgreich als separater Branch wiederhergestellt; die Datenbank enthielt 2 Mandanten und 4 Dokument-Metadatensätze zum Testzeitpunkt.
+- **Wichtig:** Der private Object-Storage-Bucket fehlte im wiederhergestellten Branch. Eine vollständige Wiederherstellung von Dokumentdateien ist damit **nicht** nachgewiesen.
+- Automatische Snapshot-Planung war im Neon-Free-Projekt nicht verfügbar.
+- Vor echten Mandantendokumenten: unabhängige verschlüsselte Storage-Sicherung an separaten Speicherort und protokollierter Restore-Test erforderlich.
+
+## Pilotkonten und Inhaltsstand
+- Admin-Identität über eigene, zugriffsberechtigte E-Mail-Adresse; Demo-Kundenidentität über zweite Test-E-Mail-Adresse.
+- Zwei fiktive PDFs tatsächlich im privaten Storage abgelegt (eines pro Testmandant); diese sind keine echten Kundendokumente.
+- Zwei getrennte, vollständig angemeldete Test-Browsersitzungen mit echtem E-Mail-Code und TOTP wurden noch nicht automatisiert durchgespielt. Keine Produktivfreigabe.
