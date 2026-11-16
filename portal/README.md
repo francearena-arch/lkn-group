@@ -1,39 +1,41 @@
-# LKN Group Kundenportal – Pilot V1
+# LKN Group Kundenportal
 
-**Technischer Stand:** Private Neon database/storage, Neon Auth, serverseitige customer vs. admin permissions, admin TOTP (app-level), upload/download interface and secure API routes implemented. Tests using artificial files passed previously. All real customer data is prohibited until the release gates are complete.
+Technischer Stand (16. November 2026): Next.js auf Vercel, Neon PostgreSQL, Neon Managed Auth und privater Neon Object Storage.
 
-## Links
-- Portal: https://lkn-client-portal-demo.vercel.app/
-- Public website: https://francearena-arch.github.io/lkn-group/
+## Rollen und Dateien
 
-## Architecture
-- Next.js on Vercel, source in `portal/`
-- Neon PostgreSQL `lkn_portal`
-- Neon Managed Auth, one combined sign-in page
-- `public.portal_memberships`: customers assigned to a specific client
-- `public.portal_admins`: explicit administrator access only
-- Admin TOTP additional session check, mandatory for admin data access
-- Storage bucket `lkn-demo-documents`: private
-- Documents scoped by client ID in SQL and storage key
-- Protected upload `POST /api/documents`, listing `GET /api/documents`, download `GET /api/documents/[id]/download`
+- **Mandant:** Anmeldung über dieselbe Login-Maske wie Admin. Server prüft Zuordnung in `portal_memberships`. Nur Dokumente des eigenen Mandanten können angesehen, hochgeladen oder heruntergeladen werden.
+- **Administrator:** Die Berechtigung wird ausschliesslich über `portal_admins` kontrolliert. Zusätzlich ist ein zeitlich begrenzter TOTP-Zweitfaktor vorgeschrieben. Nach Anmeldung kann der Admin Mandanten suchen, auswählen und für diese Dokumente hochladen bzw. abrufen.
+- Die API vertraut nie auf einen übergebenen Mandantenwert, ohne die Rolle serverseitig zu prüfen.
+- Privater Bucket `lkn-demo-documents`; Dateien werden durch Eigentümer-ID und eindeutigen Objektschlüssel getrennt gespeichert.
 
-## Demo accounts
-A registered mailbox is required for each real test login. Existing Neon Auth users include accounts associated with the owner's email and dummy addresses. The dummy `example.com` accounts cannot receive email, and should not be advertised as functional to Raimond. No hardcoded login passwords are committed. A personal, deliverable administrator email and two deliverable test emails or a managed credential provisioning process must be agreed before a complete browser E2E run.
+## Dokumentbenachrichtigungen
 
-## Automated tests
-- `node scripts/smoke-storage.mjs` (requires Neon and S3 env vars)
-- `node scripts/smoke-authz.mjs` (requires Neon and S3 env vars)
-- Browser E2E specification: `tests/portal-access.spec.cjs`, **not yet executed**. See `tests/README.md`.
+Bei einem **erfolgreichen Admin-Upload** wird für jede registrierte und **verifizierte** Mandanten-E-Mail-Adresse eine Benachrichtigung in `portal_notifications` vorgemerkt. Es werden keine Dokumente per E-Mail mitgeschickt.
 
-## Environment
-`DATABASE_URL`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `ADMIN_TOTP_ENCRYPTION_KEY`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3`, `AWS_REGION`. Secret values are stored only in Vercel.
+- `lib/notifications.js` enthält Empfängerauswahl, E-Mail-Vorlage und Versand per Resend-API.
+- `RESEND_API_KEY` und `LKN_VERIFIED_SENDER` müssen nach Verifizierung einer LKN-Domain als sichere Vercel-Umgebungsvariablen hinterlegt werden.
+- Ohne diese Konfiguration **erfolgt kein automatischer E-Mail-Versand**; Einträge bleiben in der Warteschlange.
+- Ein Geheimnis `CRON_SECRET` und der geschützte Endpoint `/api/internal/notifications` stehen für künftige Wiederholungsversuche zur Verfügung. Eine produktive Zeitplanung und Zustellprüfung sind noch einzurichten.
+- Bestehende Demo-Identitäten mit `example.com`-Adressen sind nicht verifiziert und erhalten bewusst **keine** Benachrichtigungen.
+- Versandbestätigung, Fehlerfälle, Bounce-Handling und Abgleich von Empfängerdaten sind vor Produktivbetrieb zu testen.
 
-## Password reset and emails
-- Recovery pages `/passwort-vergessen` and `/passwort-zuruecksetzen` are implemented.
-- Branded HTML exists under `templates/`, but Neon still uses shared SMTP pending an authorised LKN sender/domain and email provider.
-- End-to-end email deliverability/password-reset verification remains open.
+## Anmeldung
 
-## Live status
-The most recent repository changes have **not been redeployed** due to Vercel Hobby's API deployment quota (100/day). Root directory has been set to `portal/` in project settings; a fresh successful build and live runtime check remain necessary.
+- E-Mail und Passwort; beide Eingabefelder sind leer.
+- `Passwort vergessen?` führt zu einem Link zum Zurücksetzen.
+- `Einmalcode per E-Mail senden` ermöglicht die Anmeldung ohne Passwort mit einem befristeten Code an die registrierte Adresse.
+- Admin-MFA ist unabhängig hiervon und kann durch E-Mail-OTP nicht umgangen werden.
 
-**No production approval for real tax, payroll, financial or identity documents.**
+## Technische Tests
+
+- Automatische SQL- und Storage-Tests: Mandantentrennung und bytegenauer Upload/Download mit künstlichen Dateien bestanden.
+- Echte Browser-End-to-End-Tests mit 2 verifizierten Testmandanten und Admin-MFA, Passwort-Reset-Mailversand und Zustellung der Upload-Benachrichtigungen sind **noch offen**.
+- Für eine vollständige Backupfreigabe fehlt die geprüfte Wiederherstellung der privaten Dokument-Dateibinaries. Siehe `SECURITY.md` und `OPERATIONS.md`.
+
+## Deployment
+
+- Portal: `https://lkn-client-portal-demo.vercel.app/` (technische Projektadresse, trotz neutralem UI)
+- Öffentliche Website: `https://francearena-arch.github.io/lkn-group/`
+- Vercel-Projekt `lkn-client-portal-demo`, Source Root `portal/`
+- Kein Upload echter sensibler Kundenunterlagen bis zur Sicherheits- und Datenschutzfreigabe.
