@@ -28,3 +28,9 @@ Monatliche Pauschale CHF 350 (kalkuliertes Angebot, kein Nachweis realer Anbiete
 - Vercel-Projektname: `lkn-kundenportal`; Root Directory: `portal`.
 - `portal/vercel.json` deaktiviert automatische Git-Deployments dauerhaft; nach dem **ersten manuellen API-Release** werden reine Website-Commits kein Portal-Deployment mehr auslösen. Preview-Deployments sind vorläufig deaktiviert.
 - Vercel Hobby Limit (100 kostenlose API-Deployments/Tag) zuvor erreicht; beim nächsten Zeitpunkt **einen einzelnen manuellen REST-API-Deploy** aus dem zuvor gemergten PR durchführen (nicht zusätzlich über Dashboard deployen), anschliessend Build/Runtime/Seiten und Sicherheit prüfen.
+
+## Neon Branch-Konfiguration
+- Projekt: `lkn-kundenportal` (Projekt-ID `wispy-feather-78804019`).
+- **Default-/Anwendungsbranch:** `production` (`br-cool-hall-baod8q45`); dort liegen der private Storage-Bucket und die Tabellen inklusive Benachrichtigungswarteschlange.
+- Älterer Restore-Branch: `restore-snapshot-2026-11-16` (`br-plain-dew-bamsz5es`); nur Wiederherstellungsprüfung, **nicht** als produktive Datenquelle verwenden.
+- Bei jeder Datenbankmigration **explizit** die Branch-ID `br-cool-hall-baod8q45` angeben; kein blindes SQL auf einem beliebigen Branch. Vercel-Datenbank-URL muss auf diesen Branch zeigen.
