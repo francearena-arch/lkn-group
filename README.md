@@ -1,63 +1,34 @@
-# LKN Group Website – Release V12
+# LKN Group Website – Pilot Release V13
 
-Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
+Responsive corporate website and separate LKN customer portal.
 
-## Current release
-**V12**
+## Website
+- GitHub Pages: https://francearena-arch.github.io/lkn-group/
+- Main pages: Startseite, Treuhand, Immobilien, Versicherungen, Über uns, Kontakt, Impressum, Datenschutz.
+- The new official roofline **LKN GROUP** logo is stored as `lkn-logo-v2.png` and used across the public site.
+- Portal access: https://lkn-client-portal-demo.vercel.app/
 
-## V11 changes
-- Standardized the three homepage service-area tags
-- `Treuhand`, `Immobilien` and `Versicherungen` now use the same light-blue visual treatment
-- Removed the grey muted styling from Immobilien and Versicherungen
-- Updated stylesheet cache version to V11
-- No other layout, content or functionality changes
+## Customer portal
+- Next.js source code: `portal/`
+- Neon: PostgreSQL, Managed Better Auth, private Object Storage.
+- One login form; server-side roles control customer or administrator dashboard.
+- Customer: can list/upload/download only documents belonging to an assigned client.
+- Administrator: client selection/search; extra application-level TOTP verification required for privileged access.
+- Download and upload are restricted on the server, not just in the browser.
+- Automatic authorization and private storage smoke tests passed previously; see `portal/SECURITY.md`.
+- Test data only. **Not approved for confidential production documents.**
 
-## Website structure
-- Startseite
-- LK Treuhand
-- LK Immobilien
-- LK Versicherungen
-- Über uns
-- Kontakt
-- Impressum
-- Datenschutz
+## Current deployment blocker
+Vercel Hobby reported its limit of 100 API deployments per day on 16 Nov 2026. The Vercel project root was corrected to `portal/`, but the updated repository has **not yet been successfully redeployed** since the limit occurred. Do not represent the current live deployment as the final release until a new build succeeds.
 
-## Deployment
-GitHub Pages
+## Security release gates
+- Browser E2E with two verified customer accounts and admin MFA is still pending.
+- A Neon database snapshot was restored, but the private document bucket did not restore into that branch. Full file restore from an independent encrypted backup still needs implementation and verification.
+- Branded transactional mail is pending LKN sender verification and provider configuration.
+- Independent security/legal review, malware scanning and incident processes before accepting real customer data.
 
-- Branch: `main`
-- Folder: `/ (root)`
-- Entry point: `index.html`
-
-## Main files
-- `index.html`
-- `treuhand.html`
-- `immobilien.html`
-- `versicherungen.html`
-- `ueber-uns.html`
-- `kontakt.html`
-- `impressum.html`
-- `datenschutz.html`
-- `styles.css`
-- `script.js`
-- `lkn-logo.jpg`
-- `hero-office.jpg`
-- `.nojekyll`
-
-## Release workflow
-1. Extract the ZIP locally.
-2. Upload all files directly to the repository root.
-3. Replace the existing files.
-4. Commit the changes to `main`.
-5. GitHub Pages deploys automatically.
-
-## Notes
-The legal pages remain working drafts and should be reviewed against the final company details and actual data-processing setup before production launch.
-
-## V12 – Kundenportal Demo
-- Kundenlogin-Navigation in Desktop und Mobile ergänzt.
-- Separates Next.js-Portal unter `portal/` hinzugefügt.
-- Neon Auth, PostgreSQL-Datenmodell und privater Storage-Bucket vorbereitet.
-- Demo-Inhalte sind fiktiv; echte Uploads und Downloads bleiben bis zur Sicherheitsabnahme deaktiviert.
-- Vercel-Testprojekt angelegt. Backend-Zugangsdaten müssen ausschliesslich über Vercel-Umgebungsvariablen verwaltet werden.
-- Kein Produktivbetrieb mit echten Mandantendaten.
+## Deploy
+- Public website: GitHub Pages `main`, folder `/`.
+- Portal: Vercel Next.js project `lkn-client-portal-demo`, rootDirectory `portal`.
+- Environment secrets remain on Vercel only; never commit credentials.
+- Main release checklist and costs: `portal/OPERATIONS.md`.

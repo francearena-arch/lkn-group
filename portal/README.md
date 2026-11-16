@@ -1,39 +1,39 @@
-# LKN Client Portal (Demo)
+# LKN Group Kundenportal – Pilot V1
 
-## Status
-Demo UI + Neon-managed authentication and database metadata. Demo mode uses fictional information. Real customer accounts need an explicit membership in portal_memberships. File upload/download is intentionally disabled pending secure storage API and authorization testing.
+**Technischer Stand:** Private Neon database/storage, Neon Auth, serverseitige customer vs. admin permissions, admin TOTP (app-level), upload/download interface and secure API routes implemented. Tests using artificial files passed previously. All real customer data is prohibited until the release gates are complete.
 
-## Environment (Vercel)
-- DATABASE_URL: pooled Neon Postgres URL (server only)
-- NEON_AUTH_BASE_URL: Managed Neon Auth URL
-- NEON_AUTH_COOKIE_SECRET: random >=32 character secret (server only)
+## Links
+- Portal: https://lkn-client-portal-demo.vercel.app/
+- Public website: https://francearena-arch.github.io/lkn-group/
 
-## Safe testing
-1. Open the public demo mode (no real files).
-2. Configure env vars on Vercel and redeploy.
-3. Create user through Neon Auth, then insert user_id/client_id membership after identity verification.
-4. Verify 401 for signed-out API and isolation between accounts before live use.
+## Architecture
+- Next.js on Vercel, source in `portal/`
+- Neon PostgreSQL `lkn_portal`
+- Neon Managed Auth, one combined sign-in page
+- `public.portal_memberships`: customers assigned to a specific client
+- `public.portal_admins`: explicit administrator access only
+- Admin TOTP additional session check, mandatory for admin data access
+- Storage bucket `lkn-demo-documents`: private
+- Documents scoped by client ID in SQL and storage key
+- Protected upload `POST /api/documents`, listing `GET /api/documents`, download `GET /api/documents/[id]/download`
 
-Not production ready; no actual customer data should be used.
+## Demo accounts
+A registered mailbox is required for each real test login. Existing Neon Auth users include accounts associated with the owner's email and dummy addresses. The dummy `example.com` accounts cannot receive email, and should not be advertised as functional to Raimond. No hardcoded login passwords are committed. A personal, deliverable administrator email and two deliverable test emails or a managed credential provisioning process must be agreed before a complete browser E2E run.
 
-## Passwort vergessen – Demo-Release
-- Link unterhalb von `Sicher anmelden`: `/passwort-vergessen`
-- Passwort-Reset per Neon Auth: `requestPasswordReset` und `resetPassword`
-- Rücksetzseite: `/passwort-zuruecksetzen`
-- Generische Rückmeldung unabhängig davon, ob ein Konto existiert (Schutz vor Nutzerabfrage)
-- Minimale Passwortlänge: 12 Zeichen; Passwortbestätigung; tokenbasierte Freigabe
-- Existing Neon Auth setting: revoke_sessions_on_password_reset = true
-- Bei Neon Auth ist aktuell der gemeinsame Versand `auth@mail.myneon.app` aktiv.
-- Vollständig gebrandete LKN-E-Mail-Vorlage liegt unter `templates/password-reset-email.html`, ist aber **noch nicht an den Versand angebunden**.
-- Für Markenversand benötigt: eigener verifizierter Absender, Versandprovider, authentifizierter send.magic_link-Webhook und End-to-End-Test.
-- Test nur mit freigegebenen Testadressen; keine echten Kundendaten verwenden.
+## Automated tests
+- `node scripts/smoke-storage.mjs` (requires Neon and S3 env vars)
+- `node scripts/smoke-authz.mjs` (requires Neon and S3 env vars)
+- Browser E2E specification: `tests/portal-access.spec.cjs`, **not yet executed**. See `tests/README.md`.
 
-## Demo release: Passwortwiederherstellung und Konfiguration (16.11.2026)
-- Doppelten `Passwort vergessen?`-Link im Login entfernt.
-- Weiterleitung auf `/passwort-vergessen` und Rücksetzen auf `/passwort-zuruecksetzen` bleiben erhalten.
-- Neubuild auf Vercel erfolgreich (Production).
-- Vercel-Konfiguration: `DATABASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `NEON_AUTH_BASE_URL` bleiben erforderlich; als **Sensitive** klassifiziert.
-- Neon Auth Anzeigename: `LKN Group Kundenportal`.
-- Brand-E-Mail-HTML liegt unter `templates/password-reset-email.html`.
-- **Achtung:** Der tatsächliche Versand verwendet noch Neons Shared SMTP. Zum Aktivieren der Marken-E-Mail sind ein verifizierter LKN-Absender, ein angebundener E-Mail-Anbieter und ein signaturgeprüfter Neon-Webhook nötig. Webhook derzeit absichtlich deaktiviert, damit das bestehende Rücksetzen nicht unterbrochen wird.
-- Dokumenten-Upload/-Download weiterhin deaktiviert; Auth-E2E und Mandantentrennung noch abzunehmen.
+## Environment
+`DATABASE_URL`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `ADMIN_TOTP_ENCRYPTION_KEY`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3`, `AWS_REGION`. Secret values are stored only in Vercel.
+
+## Password reset and emails
+- Recovery pages `/passwort-vergessen` and `/passwort-zuruecksetzen` are implemented.
+- Branded HTML exists under `templates/`, but Neon still uses shared SMTP pending an authorised LKN sender/domain and email provider.
+- End-to-end email deliverability/password-reset verification remains open.
+
+## Live status
+The most recent repository changes have **not been redeployed** due to Vercel Hobby's API deployment quota (100/day). Root directory has been set to `portal/` in project settings; a fresh successful build and live runtime check remain necessary.
+
+**No production approval for real tax, payroll, financial or identity documents.**
