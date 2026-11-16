@@ -9,3 +9,6 @@ Für vollständig gebrandete E-Mails sind gemäss Neon-Dokumentation nötig:
 4. Tests für gültige, abgelaufene und manipulierte Links sowie SPF/DKIM/DMARC.
 
 Die Vorlage niemals öffentlich als echten Versandmechanismus interpretieren. In V1 nutzt der Passwort-Reset Neons Shared SMTP. Der Text im E-Mail-Template enthält absichtlich keine persönlichen Kundendaten.
+
+## Umsetzungsstand
+Die sichere Next.js-Webhook-Route `/api/webhooks/neon-auth` wurde zusätzlich vorbereitet. Die Vorlage wird dort zu HTML für OTP bzw. Passwort-Reset zusammengestellt. Aktuell bleibt der Neon-Standardversand aktiv; nur nach Provider-/Domainverifizierung und E2E-Test darf auf den signierten Webhook umgeschaltet werden.

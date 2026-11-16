@@ -48,3 +48,6 @@ Neon Auth versendet bis zur Umstellung weiterhin über seinen Shared Provider. Z
 - Ausstehende/fehlgeschlagene E-Mails werden täglich über geschützten Vercel-Cron erneut versucht.
 - Der Cron verwendet das sensitive Vercel Environment Secret \`CRON_SECRET\`.
 - Produktion erst nach Test der Mailzustellung und der Ablehnung fremder/ungeprüfter Adressen freigeben.
+
+## Zusatz: Vollständig gebrandete Neon Auth-Mails
+Die Next.js-Route `/api/webhooks/neon-auth` ist im Release-Branch vorbereitet. Aktivierung erst nach verifizierter E-Mail-Domain, SMTP- bzw. Resend-Zugang, erfolgreichem End-to-End-Test und Nachweis der Signaturvalidierung. Anschliessend in Neon Auth nur `send.otp` und `send.magic_link` auf `https://lkn-kundenportal.vercel.app/api/webhooks/neon-auth` abonnieren (später auf endgültige Portal-Domain umstellen). Der bisherige Shared-Versand muss bis dahin aktiv bleiben, weil ein aktivierter Webhook den Default-Versand ersetzt.

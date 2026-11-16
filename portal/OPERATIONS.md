@@ -34,3 +34,9 @@ Monatliche Pauschale CHF 350 (kalkuliertes Angebot, kein Nachweis realer Anbiete
 - **Default-/Anwendungsbranch:** `production` (`br-cool-hall-baod8q45`); dort liegen der private Storage-Bucket und die Tabellen inklusive Benachrichtigungswarteschlange.
 - Älterer Restore-Branch: `restore-snapshot-2026-11-16` (`br-plain-dew-bamsz5es`); nur Wiederherstellungsprüfung, **nicht** als produktive Datenquelle verwenden.
 - Bei jeder Datenbankmigration **explizit** die Branch-ID `br-cool-hall-baod8q45` angeben; kein blindes SQL auf einem beliebigen Branch. Vercel-Datenbank-URL muss auf diesen Branch zeigen.
+
+## Release-Nachtrag: E-Mail-Webhook und Domaincheck
+- Webhook-Code für Branding ist vorbereitet, in Neon aber noch **nicht aktiviert**. Einmalcodes und Passwort-Reset laufen bis zur SMTP-Konfiguration über den Shared-Provider.
+- Vercel Domain Configuration meldet für `portal.lkn-group.ch` **misconfigured=true**, obwohl die Domain am Projekt registriert und die Zuordnung verifiziert ist. Hosttech-CNAME fehlt; keine öffentliche Umstellung des Login-Links vor DNS-/HTTPS-Abnahme.
+- Website-Audit: die acht HTML-Seiten referenzieren nur `lkn-logo-v2.png`, die Startseite zusätzlich `hero-office-v2.svg` mit eingebettetem offiziellen Dachlinienlogo; keine alten Bildpfade in HTML.
+- GitHub Actions prüft den Portal-Build auf dem Release-Branch ohne Produktionsgeheimnisse. Für den nächsten Release bleibt es bei **einem** manuellen Vercel-Deploy aus dem konsolidierten Branch, nach erfolgreichem Test erst Merge nach `main`.

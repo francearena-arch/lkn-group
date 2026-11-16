@@ -23,3 +23,11 @@ Vor dem produktiven Go-live ausschliesslich künstliche Dokumente verwenden. Det
 
 ## Deploymentdisziplin
 Die Portaländerungen auf Branch `release/lkn-kundenportal-v1` sammeln und **erst nach Abschluss** mit `main` zusammenführen. Zur Vermeidung eines doppelten Deployments zuerst **genau einen manuellen REST-API-Produktionsdeploy direkt aus `release/lkn-kundenportal-v1`** ausführen. Nach erfolgreichem Build und Sicherheitscheck den Draft-PR #1 in `main` mergen. Da das aktive `vercel.json` dann `git.deploymentEnabled=false` setzt, darf dieser Merge keinen weiteren automatischen Vercel-Deploy auslösen. `portal/vercel.json` setzt `git.deploymentEnabled=false`: automatische Deployments nach GitHub-Pushs werden damit nach Aktivierung der neuen Konfiguration dauerhaft ausgeschaltet. Preview-Deployments sind während der Sammelphase deaktiviert.
+
+## Branded Auth-E-Mails: vorbereiteter, noch nicht aktivierter Webhook
+- Route `/api/webhooks/neon-auth` verifiziert `X-Neon-Signature`, Signatur-Key-ID und Zeitfenster serverseitig.
+- Unterstützt `send.otp` (Anmelde-Einmalcode) und `send.magic_link` (inklusive Passwort-Reset).
+- Unterstützt einen verifizierten SMTP-Versanddienst oder alternativ Resend, mit LKN-Farben und Logo.
+- **Absichtlich nicht in Neon aktiviert:** Ohne verifizierte Absenderadresse und SMTP/API-Zugangsdaten würde sonst der bestehende Neon-Standardversand entfallen.
+- Vor Aktivierung: echte Zustellung mit kontrolliertem Empfänger testen, SPF/DKIM/DMARC und Domain nachweisen, Signatur-Test und Passwort-Reset mit gültigem/ungültigem Link prüfen.
+- Es sind aktuell **keine echten E-Mail-Zustellungen** bestätigt.
