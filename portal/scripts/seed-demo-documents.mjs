@@ -9,14 +9,14 @@ function pdf(text){
     '<</Type/Pages/Kids[3 0 R]/Count 1>>',
     '<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>',
     '<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>',
-    '<</Length '+Buffer.byteLength(stream)+'>>\\nstream\\n'+stream+'\\nendstream'
+    '<</Length '+Buffer.byteLength(stream)+'>>\nstream\n'+stream+'\nendstream'
   ];
-  let out='%PDF-1.4\\n';const positions=[0];
-  obj.forEach((content,i)=>{positions.push(Buffer.byteLength(out));out+=(i+1)+' 0 obj\\n'+content+'\\nendobj\\n'});
-  const p=Buffer.byteLength(out);out+='xref\\n0 6\\n0000000000 65535 f \\n';
-  for(const pos of positions.slice(1))out+=String(pos).padStart(10,'0')+' 00000 n \\n';
-  out+='trailer <</Size 6/Root 1 0 R>>\\nstartxref\\n'+p+'\\n%%EOF\\n';
-  return Buffer.from(out.replaceAll('\\n','\n'));
+  let out='%PDF-1.4\n';const positions=[0];
+  obj.forEach((content,i)=>{positions.push(Buffer.byteLength(out));out+=(i+1)+' 0 obj\n'+content+'\nendobj\n'});
+  const p=Buffer.byteLength(out);out+='xref\n0 6\n0000000000 65535 f \n';
+  for(const pos of positions.slice(1))out+=String(pos).padStart(10,'0')+' 00000 n \n';
+  out+='trailer <</Size 6/Root 1 0 R>>\nstartxref\n'+p+'\n%%EOF\n';
+  return Buffer.from(out.replaceAll('\n','\n'));
 }
 const client=new S3Client({region:process.env.AWS_REGION,endpoint:process.env.AWS_ENDPOINT_URL_S3,forcePathStyle:true,credentials:{accessKeyId:process.env.AWS_ACCESS_KEY_ID,secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY}});
 const sql=neon(process.env.DATABASE_URL);
