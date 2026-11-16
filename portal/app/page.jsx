@@ -10,7 +10,7 @@ const examples = [
 ];
 
 export default function Page() {
-  const [mode, setMode] = useState('demo');
+  const [mode, setMode] = useState('login');
   const [user, setUser] = useState(null);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
@@ -23,13 +23,40 @@ export default function Page() {
   const [clients, setClients] = useState([]);
   const [selectedClientId, setSelectedClientId] = useState('');
   const [clientName, setClientName] = useState('Muster Treuhand AG');
-  const [rows, setRows] = useState(examples);
+  const [rows, setRows] = useState([]);
   const [pending, setPending] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadCategory, setUploadCategory] = useState('Allgemein');
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [mfaConfigured,setMfaConfigured]=useState(false);
+  const [mfaQr,setMfaQr]=useState('');
+  const [mfaSecret,setMfaSecret]=useState('');
+  const [mfaCode,setMfaCode]=useState('');
+  const [mfaBusy,setMfaBusy]=useState(false);
   const requestSequence = useRef(0);
+
+  async function prepareMfa(){
+    setMfaBusy(true);setError('');
+    try{
+      const res=await fetch('/api/admin/mfa/setup',{cache:'no-store'});
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error||'MFA-Einrichtung nicht verfügbar');
+      setMfaQr(data.qr);setMfaSecret(data.secret);
+    }catch(e){setError(e.message)}
+    finally{setMfaBusy(false)}
+  }
+  async function confirmMfa(event){
+    event.preventDefault();setMfaBusy(true);setError('');
+    try{
+      const res=await fetch('/api/admin/mfa/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:mfaCode})});
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error||'Zweitfaktor konnte nicht geprüft werden');
+      setMfaCode('');setMfaSecret('');setMfaQr('');await initializePortal();
+    }catch(e){setError(e.message)}
+    finally{setMfaBusy(false)}
+  }
+  useEffect(()=>{if(mode==='mfa'&&!mfaConfigured&&!mfaQr)prepareMfa();},[mode,mfaConfigured,mfaQr]);
 
   async function refreshDocuments(clientId = '') {
     const seq = ++requestSequence.current;
@@ -74,6 +101,15 @@ export default function Page() {
     setPending(false);
     setRows([]);
     try {
+      const statusResponse=await fetch('/api/admin/mfa/status',{cache:'no-store'});
+      const status=await statusResponse.json();
+      if(!statusResponse.ok)throw new Error('Zugriffsprüfung nicht verfügbar');
+      if(status.isAdmin && !status.verified){
+        setIsAdmin(true);setMfaConfigured(Boolean(status.configured));
+        setMode('mfa');setLoading(false);setRows([]);
+        return;
+      }
+      setMfaConfigured(Boolean(status.configured));
       const response = await fetch('/api/clients', { cache: 'no-store', credentials: 'same-origin' });
       if (response.ok) {
         const data = await response.json();
@@ -157,7 +193,7 @@ export default function Page() {
 
   async function signOut() {
     ++requestSequence.current;
-    try { await authClient.signOut(); } finally {
+    try { await fetch('/api/admin/mfa/logout',{method:'POST'}).catch(()=>{});await authClient.signOut(); } finally {
       setUser(null);
       setMode('login');
       setIsAdmin(false);
@@ -212,16 +248,27 @@ export default function Page() {
   return <>
     <header className="top">
       <a className="identity" href="https://francearena-arch.github.io/lkn-group/" aria-label="Zur LKN Website">
-        <span className="mark">LKN</span><span>GROUP <small>KUNDENPORTAL</small></span>
+<img className="portalLogo" src="/lkn-logo-v2.png" alt="LKN Group"/><span className="portalTitle">KUNDENPORTAL</span>
       </a>
       <nav>
-        <a href="https://francearena-arch.github.io/lkn-group/">Zur Website</a>
+        <a className="backWebsite" href="https://francearena-arch.github.io/lkn-group/">← Zurück zur Website</a>
         {user && <button onClick={signOut}>Abmelden</button>}
       </nav>
     </header>
 
     <main className="wrap">
-      {mode === 'login' ?
+      {mode === 'mfa' ? <section className="login mfaCard">
+        <div className="eyebrow">ADMINISTRATOR · ZWEI-FAKTOR-ANMELDUNG</div>
+        <h1>{mfaConfigured?'Zugang bestätigen.':'Zweitfaktor einrichten.'}</h1>
+        <p>{mfaConfigured?'Bitte den sechsstelligen Code aus Ihrer Authenticator-App eingeben.':'Scannen Sie den QR-Code mit Ihrer Authenticator-App (z. B. Microsoft Authenticator oder Google Authenticator). Danach bestätigen Sie den angezeigten Code.'}</p>
+        {!mfaConfigured&&mfaQr&&<div className="qrArea"><img src={mfaQr} alt="Authenticator-QR-Code"/><p>Alternativer Einrichtungsschlüssel:</p><code className="mfaSecret">{mfaSecret}</code></div>}
+        <form onSubmit={confirmMfa}>
+          <label>Einmalcode<input autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required value={mfaCode} onChange={e=>setMfaCode(e.target.value)} placeholder="000000"/></label>
+          {error&&<p className="error" role="alert">{error}</p>}
+          <button className="primary" disabled={mfaBusy||mfaCode.length!==6}>{mfaBusy?'Prüfung läuft …':'Zugang bestätigen'}</button>
+        </form>
+        <p className="mfaNote">Administratorzugriff wird erst nach erfolgreicher Zwei-Faktor-Prüfung freigeschaltet.</p>
+      </section> : mode === 'login' ?
         <section className="login">
           <div className="eyebrow">GESCHÜTZTER KUNDENBEREICH</div>
           <h1>Willkommen zurück.</h1>
@@ -250,25 +297,21 @@ export default function Page() {
               <button className="primary" onClick={signInOtp} disabled={busy || !otp}>Mit Einmalcode anmelden</button>
             </div>}
           </div>
-          <button className="linkbtn" onClick={() => { setMode('demo'); setError(''); }}>
-            Demo ohne Kundendaten ansehen
-          </button>
+
         </section> :
         <>
           <section className="intro">
             <div>
-              <div className="eyebrow">LKN GROUP / {mode === 'demo' ? 'INTERAKTIVE DEMO' : isAdmin ? 'ADMINISTRATOR' : 'KUNDENBEREICH'}</div>
-              <h1>{isAdmin && mode === 'portal' ? 'Mandantenverwaltung.' : 'Guten Tag' + (mode === 'demo' ? ', Herr Muster' : '') + '.'}</h1>
+              <div className="eyebrow">LKN GROUP / {isAdmin ? 'MANDANTENVERWALTUNG' : 'KUNDENBEREICH'}</div>
+              <h1>{isAdmin && mode === 'portal' ? 'Mandantenverwaltung.' : 'Guten Tag.'}</h1>
               <p>{isAdmin && mode === 'portal'
                 ? 'Wählen Sie einen Mandanten. Dokumente und Uploads werden ausschliesslich diesem Mandanten zugeordnet.'
                 : 'Ihr persönlicher Bereich für Dokumente und den Austausch mit LKN.'}</p>
             </div>
-            {mode === 'demo' &&
-              <button className="primary" onClick={() => setMode('login')}>Zum Kundenlogin</button>}
+
           </section>
 
-          {mode === 'demo' &&
-            <div className="notice">Demoansicht mit ausschliesslich fiktiven Daten. Keine echten Kundendokumente.</div>}
+
 
           {mode === 'portal' && isAdmin &&
             <section className="adminSelector" aria-label="Mandant auswählen">
@@ -288,7 +331,7 @@ export default function Page() {
           <section className="stats">
             <article><span>Meine Dokumente</span><strong>{rows.length}</strong><small>Dokumentenübersicht</small></article>
             <article><span>Mandant</span><strong className="sm">{clientName}</strong><small>{isAdmin ? 'Ausgewählter Mandant' : 'Geschützter Bereich'}</small></article>
-            <article><span>Neue Dokumente</span><strong>{mode === 'demo' ? 3 : 0}</strong><small>{mode === 'demo' ? 'Fiktive Beispieldaten' : 'Aktuell keine neuen Markierungen'}</small></article>
+            <article><span>Neue Dokumente</span><strong>{0}</strong><small>{'Aktuell keine neuen Markierungen'}</small></article>
           </section>
 
           <div className="columns">
@@ -306,7 +349,7 @@ export default function Page() {
                     <a className="documentDownload" href={'/api/documents/' + encodeURIComponent(d.id) + '/download'}>
                       Herunterladen ↓
                     </a> :
-                    <span className="muted">{mode === 'demo' ? 'Beispiel' : 'Noch keine Datei'}</span>}
+                    <span className="muted">{'Noch keine Datei'}</span>}
                 </div>)}
             </section>
 
@@ -335,8 +378,7 @@ export default function Page() {
                 </form> :
                 <div className="drop">
                   <span className="uploadIcon">↥</span><strong>Dokument hochladen</strong>
-                  <p>{mode === 'demo' ? 'Uploads sind in der öffentlichen Demoansicht deaktiviert.'
-                    : selectionRequired ? 'Bitte zuerst einen Mandanten auswählen.'
+                  <p>{selectionRequired ? 'Bitte zuerst einen Mandanten auswählen.'
                     : 'Upload derzeit nicht verfügbar.'}</p>
                   <button disabled>Upload nicht verfügbar</button>
                 </div>}
@@ -351,7 +393,7 @@ export default function Page() {
 
     <footer className="footer">
       <span>© LKN Group · Kundenportal Demo</span>
-      <span>Nur für Testzwecke · Keine echten Kundendaten</span>
+      <span>Pilotbetrieb · Vertrauliche Daten</span>
     </footer>
   </>;
 }
