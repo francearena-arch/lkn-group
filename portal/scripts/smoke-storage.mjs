@@ -23,7 +23,7 @@ try {
   const users=await sql.query("SELECT user_id,client_id FROM public.portal_memberships WHERE role='client' ORDER BY created_at LIMIT 20");
   const seen=new Map();
   for(const u of users){
-    const docs=await sql.query("SELECT d.client_id,d.id FROM public.portal_documents d JOIN public.portal_memberships m ON m.client_id=d.client_id JOIN public.portal_clients c ON c.id=d.client_id WHERE m.user_id=$1 AND c.status='active'",[u.user_id]);
+    const docs=await sql.query("SELECT d.client_id,d.id FROM public.portal_documents d JOIN public.portal_memberships m ON m.client_id=d.client_id AND m.role='client' JOIN public.portal_clients c ON c.id=d.client_id WHERE m.user_id=$1 AND c.status='active'",[u.user_id]);
     for(const d of docs) if(d.client_id!==u.client_id)throw Error('SMOKE: cross-tenant leak');
     seen.set(u.client_id,docs.length);
   }
