@@ -30,7 +30,7 @@ export default function ForgotPassword(){
   {done?<><p>Falls für diese E-Mail-Adresse ein Kundenkonto existiert, erhalten Sie einen Link zum Zurücksetzen Ihres Passworts.</p><p className="recoveryNote">Bitte prüfen Sie auch Ihren Spam-Ordner. Der Link ist nur begrenzte Zeit gültig.</p><a className="primary recoveryButton" href="/">Zur Anmeldung</a></>:
    <><p>Geben Sie Ihre registrierte E-Mail-Adresse ein. Wir senden Ihnen einen Link, mit dem Sie ein neues Passwort festlegen können.</p>
    <form onSubmit={submit}>
-    <label>E-Mail-Adresse<input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@beispiel.ch"/></label>
+    <label>E-Mail-Adresse<input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} /></label>
     {error&&<p role="alert" className="error">{error}</p>}
     <button type="submit" className="primary" disabled={busy}>{busy?'Link wird angefordert …':'Link zum Zurücksetzen senden'}</button>
    </form></>}
