@@ -1,1 +1,1 @@
-import './globals.css'; export const metadata={title:'LKN Group | Kundenportal',robots:{index:false,follow:false}};export default function RootLayout({children}){return <html lang="de"><body>{children}</body></html>}
+import './globals.css'; export const metadata={title:'LKN Group | Kundenportal',robots:{index:false,follow:false},icons:{icon:'/lkn-logo-v2.png'}};export default function RootLayout({children}){return <html lang="de"><body>{children}</body></html>}
