@@ -24,7 +24,7 @@ export async function getClientMembership(sql, userId) {
     "SELECT m.client_id, c.name FROM public.portal_memberships m INNER JOIN public.portal_clients c ON c.id=m.client_id WHERE m.user_id=$1 AND m.role='client' AND c.status='active' ORDER BY m.created_at ASC LIMIT 2",
     [userId]
   );
-  return rows[0] || null;
+  return rows.length === 1 ? rows[0] : null;
 }
 
 export async function resolveClientAccess(sql, userId, requestedClientId, sessionId) {
