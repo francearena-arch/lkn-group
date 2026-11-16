@@ -1,11 +1,11 @@
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { db, requirePortalUser, getClientMembership, reject, checkSameOrigin } from '../../../lib/portal';
+import { db, requirePortalUser, resolveClientAccess, reject, checkSameOrigin } from '../../../lib/portal';
 import { storageClient, BUCKET } from '../../../lib/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-const MAX_SIZE = 3 * 1024 * 1024;
 
+const MAX_SIZE = 3 * 1024 * 1024;
 const TYPES = {
   pdf: 'application/pdf',
   png: 'image/png',
@@ -23,23 +23,28 @@ function validateFile(file, bytes) {
   return { ext, mime: TYPES[ext] };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
     const user = await requirePortalUser();
     if (!user) return reject(401, 'Nicht angemeldet');
     const sql = db();
-    const membership = await getClientMembership(sql, user.id);
-    if (!membership) return reject(403, 'Kein freigeschalteter Mandantenzugang');
+    const requested = new URL(request.url).searchParams.get('client_id');
+    const access = await resolveClientAccess(sql, user.id, requested);
+    if (!access.ok) return reject(access.status, access.error);
+
     const documents = await sql.query(
       "SELECT id,title,category,mime_type,size_bytes,created_at,(object_key IS NOT NULL) AS downloadable FROM public.portal_documents WHERE client_id=$1 ORDER BY created_at DESC LIMIT 100",
-      [membership.client_id]
+      [access.client_id]
     );
     return Response.json({
       documents,
-      clientName: membership.name,
-      role: membership.role,
+      clientId: access.client_id,
+      clientName: access.name,
+      isAdmin: access.isAdmin,
       access: 'active'
-    }, { headers: { 'Cache-Control': 'no-store' } });
+    }, {
+      headers: { 'Cache-Control': 'private, no-store, max-age=0' }
+    });
   } catch {
     return reject(503, 'Dokumente vorübergehend nicht verfügbar');
   }
@@ -50,51 +55,57 @@ export async function POST(request) {
     if (!checkSameOrigin(request)) return reject(403, 'Ungültiger Request-Ursprung');
     const user = await requirePortalUser();
     if (!user) return reject(401, 'Nicht angemeldet');
-
-    const contentLength = Number(request.headers.get('content-length') || 0);
-    if (contentLength > MAX_SIZE + 100000) return reject(413, 'Datei zu gross. Maximum: 3 MB.');
-
-    const sql = db();
-    const membership = await getClientMembership(sql, user.id);
-    if (!membership) return reject(403, 'Kein freigeschalteter Mandantenzugang');
+    const length = Number(request.headers.get('content-length') || 0);
+    if (length > MAX_SIZE + 100000) return reject(413, 'Datei zu gross. Maximum: 3 MB.');
 
     const form = await request.formData();
+    const requested = form.get('client_id');
+    const sql = db();
+    const access = await resolveClientAccess(sql, user.id, typeof requested === 'string' ? requested : null);
+    if (!access.ok) return reject(access.status, access.error);
+
     const file = form.get('file');
-    if (!file || typeof file.arrayBuffer !== 'function' || typeof file.name !== 'string') {
+    if (!file || typeof file.arrayBuffer !== 'function' || typeof file.name !== 'string')
       return reject(400, 'Bitte eine Datei auswählen');
-    }
-    if (file.size > MAX_SIZE || file.size === 0) return reject(413, 'Datei zu gross oder leer. Maximum: 3 MB.');
+    if (file.size > MAX_SIZE || file.size === 0)
+      return reject(413, 'Datei zu gross oder leer. Maximum: 3 MB.');
 
     const bytes = new Uint8Array(await file.arrayBuffer());
     const type = validateFile(file, bytes);
     if (!type) return reject(415, 'Nur gültige PDF-, PNG- oder JPEG-Dateien sind erlaubt');
 
     const documentId = crypto.randomUUID();
-    const objectKey = membership.client_id + '/' + documentId + '.' + type.ext;
+    const objectKey = access.client_id + '/' + documentId + '.' + type.ext;
     const title = file.name.replace(/[\x00-\x1f\x7f\/\\]/g, '').trim().slice(0, 180);
     if (!title) return reject(400, 'Ungültiger Dateiname');
-
     const category = String(form.get('category') || 'Allgemein').slice(0, 40);
+
     const client = storageClient();
     await client.send(new PutObjectCommand({
-      Bucket: BUCKET, Key: objectKey, Body: bytes,
-      ContentType: type.mime, ContentLength: bytes.byteLength,
+      Bucket: BUCKET,
+      Key: objectKey,
+      Body: bytes,
+      ContentType: type.mime,
+      ContentLength: bytes.byteLength,
       ServerSideEncryption: 'AES256'
     }));
     try {
       await sql.query(
         "INSERT INTO public.portal_documents (id,client_id,title,object_key,mime_type,size_bytes,category,uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
-        [documentId, membership.client_id, title, objectKey, type.mime, bytes.byteLength, category, user.id]
+        [documentId, access.client_id, title, objectKey, type.mime, bytes.byteLength, category, user.id]
       );
       await sql.query(
         "INSERT INTO public.portal_audit_log(actor_user_id,client_id,action,document_id) VALUES ($1,$2,'document.upload',$3)",
-        [user.id,membership.client_id,documentId]
+        [user.id, access.client_id, documentId]
       );
     } catch {
       try { await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: objectKey })); } catch {}
       return reject(503, 'Upload konnte nicht gespeichert werden');
     }
-    return Response.json({ ok: true, id: documentId }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+    return Response.json({ ok: true, id: documentId }, {
+      status: 201,
+      headers: { 'Cache-Control': 'private, no-store, max-age=0' }
+    });
   } catch {
     return reject(503, 'Upload derzeit nicht verfügbar');
   }
