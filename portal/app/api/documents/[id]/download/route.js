@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
     const user = await requirePortalUser();
     if (!user) return reject(401, 'Nicht angemeldet');
     const { id } = await params;
-    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)) return reject(404, 'Dokument nicht gefunden');
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return reject(404, 'Dokument nicht gefunden');
     const sql = db();
     const rows = await sql.query(
       "SELECT d.id,d.client_id,d.title,d.object_key,d.mime_type FROM public.portal_documents d INNER JOIN public.portal_clients c ON c.id=d.client_id INNER JOIN public.portal_memberships m ON m.client_id=d.client_id WHERE d.id=$1 AND m.user_id=$2 AND c.status='active' AND d.object_key IS NOT NULL LIMIT 1",
@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
     return new Response(bytes, {
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': 'attachment; filename="' + asciiName + '"; filename*=UTF-8\\'\\'' + encodeURIComponent(safeName),
+        'Content-Disposition': 'attachment; filename="' + asciiName + '"; filename*=UTF-8' + "''" + encodeURIComponent(safeName),
         'Cache-Control': 'private, no-store, max-age=0',
         'X-Content-Type-Options': 'nosniff',
         'Content-Security-Policy': 'sandbox',
