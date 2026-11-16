@@ -1,0 +1,27 @@
+name: LKN Kundenportal – Build Check
+on:
+  pull_request:
+    paths:
+      - 'portal/**'
+      - '.github/workflows/lkn-kundenportal-ci.yml'
+  push:
+    branches:
+      - 'release/lkn-kundenportal-v1'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: portal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build without production credentials
+        env:
+          NEON_AUTH_BASE_URL: https://example.test/lkn/auth
+          NEON_AUTH_COOKIE_SECRET: ci-only-not-a-secret-0123456789abcdefghijklmno
+        run: npm run build
