@@ -1,3 +1,4 @@
+import { objectKeyBelongsToClient } from '../../../../../lib/tenant-access.mjs';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { db, requirePortalUser, reject } from '../../../../../lib/portal';
 import { storageClient, BUCKET } from '../../../../../lib/storage';
@@ -18,6 +19,7 @@ export async function GET(request, { params }) {
     );
     if (!rows.length) return reject(404, 'Dokument nicht gefunden');
     const document = rows[0];
+    if (!objectKeyBelongsToClient(document.object_key, String(document.client_id))) return reject(404, 'Dokument nicht gefunden');
     const result = await storageClient().send(new GetObjectCommand({ Bucket: BUCKET, Key: document.object_key }));
     if (!result.Body) return reject(503, 'Datei nicht abrufbar');
     const bytes = await result.Body.transformToByteArray();
