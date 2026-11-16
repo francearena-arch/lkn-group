@@ -30,7 +30,7 @@ export async function GET(request) {
     if (!user) return reject(401, 'Nicht angemeldet');
     const sql = db();
     const requested = new URL(request.url).searchParams.get('client_id');
-    const access = await resolveClientAccess(sql, user.id, requested);
+    const access = await resolveClientAccess(sql, user.id, requested, user.sessionId);
     if (!access.ok) return reject(access.status, access.error);
 
     const documents = await sql.query(
@@ -62,7 +62,7 @@ export async function POST(request) {
     const form = await request.formData();
     const requested = form.get('client_id');
     const sql = db();
-    const access = await resolveClientAccess(sql, user.id, typeof requested === 'string' ? requested : null);
+    const access = await resolveClientAccess(sql, user.id, typeof requested === 'string' ? requested : null, user.sessionId);
     if (!access.ok) return reject(access.status, access.error);
 
     const file = form.get('file');
