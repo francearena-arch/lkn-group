@@ -1,8 +1,9 @@
 import QRCode from 'qrcode';
-import {db,requirePortalUser,isPortalAdmin,reject} from '../../../../../lib/portal';
+import {db,requirePortalUser,isPortalAdmin,reject,checkSameOrigin} from '../../../../../lib/portal';
 import {getMfaRecord,encryptSecret,authenticator} from '../../../../../lib/mfa';
 export const runtime='nodejs';export const dynamic='force-dynamic';
-export async function GET(){
+export async function POST(request){
+ if(!checkSameOrigin(request))return reject(403,'Ungültiger Ursprung');
  try{
  const user=await requirePortalUser();if(!user)return reject(401,'Nicht angemeldet');
  const sql=db();if(!(await isPortalAdmin(sql,user.id)))return reject(403,'Zugriff verweigert');
