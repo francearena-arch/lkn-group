@@ -1,9 +1,9 @@
-# LKN Group Website – Release V11
+# LKN Group Website – Release V12
 
 Static, responsive multi-page corporate website for LKN Group, deployed via GitHub Pages.
 
 ## Current release
-**V11**
+**V12**
 
 ## V11 changes
 - Standardized the three homepage service-area tags
@@ -53,3 +53,11 @@ GitHub Pages
 
 ## Notes
 The legal pages remain working drafts and should be reviewed against the final company details and actual data-processing setup before production launch.
+
+## V12 – Kundenportal Demo
+- Kundenlogin-Navigation in Desktop und Mobile ergänzt.
+- Separates Next.js-Portal unter `portal/` hinzugefügt.
+- Neon Auth, PostgreSQL-Datenmodell und privater Storage-Bucket vorbereitet.
+- Demo-Inhalte sind fiktiv; echte Uploads und Downloads bleiben bis zur Sicherheitsabnahme deaktiviert.
+- Vercel-Testprojekt angelegt. Backend-Zugangsdaten müssen ausschliesslich über Vercel-Umgebungsvariablen verwaltet werden.
+- Kein Produktivbetrieb mit echten Mandantendaten.
