@@ -8,7 +8,7 @@ export const db = () => neon(process.env.DATABASE_URL);
 export async function requirePortalUser() {
   const { data, error } = await auth.getSession();
   if (error || !data?.user?.id) return null;
-  return { id: String(data.user.id), email: String(data.user.email || '') };
+  return { id: String(data.user.id), email: String(data.user.email || ''), sessionId: String(data.session?.id || '') };
 }
 
 export async function isPortalAdmin(sql, userId) {
@@ -27,9 +27,11 @@ export async function getClientMembership(sql, userId) {
   return rows[0] || null;
 }
 
-export async function resolveClientAccess(sql, userId, requestedClientId) {
+export async function resolveClientAccess(sql, userId, requestedClientId, sessionId) {
   const admin = await isPortalAdmin(sql, userId);
   if (admin) {
+    const {isAdminMfaVerified}=await import('./mfa');
+    if(!(await isAdminMfaVerified(sql,{id:userId,sessionId}))) return {ok:false,status:403,isAdmin:true,error:'Zweitfaktor erforderlich'};
     const decision = decideTenantScope({ isAdmin: true, requestedClientId });
     if (!decision.allowed) return { ok: false, status: decision.status, isAdmin: true, error: decision.error };
     const rows = await sql.query(
