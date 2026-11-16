@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createAuthClient } from '@neon/auth/next';
 
 const authClient = createAuthClient();
+const WEBSITE_URL = process.env.NEXT_PUBLIC_LKN_WEBSITE_URL || 'https://francearena-arch.github.io/lkn-group/';
 export default function Page() {
   const [mode, setMode] = useState('login');
   const [user, setUser] = useState(null);
@@ -249,11 +250,11 @@ export default function Page() {
 
   return <>
     <header className="top">
-      <a className="identity" href="https://francearena-arch.github.io/lkn-group/" aria-label="Zur LKN Website">
+      <a className="identity" href={WEBSITE_URL} aria-label="Zur LKN Website">
 <img className="portalLogo" src="/lkn-logo-v2.png" alt="LKN Group"/><span className="portalTitle">KUNDENPORTAL</span>
       </a>
       <nav>
-        <a className="backWebsite" href="https://francearena-arch.github.io/lkn-group/">← Zurück zur Website</a>
+        <a className="backWebsite" href={WEBSITE_URL}>← Zurück zur Website</a>
         {user && <button onClick={signOut}>Abmelden</button>}
       </nav>
     </header>

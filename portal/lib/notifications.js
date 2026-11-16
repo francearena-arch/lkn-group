@@ -1,7 +1,7 @@
 import 'server-only';
 import { db } from './portal';
 
-const portalUrl = 'https://lkn-client-portal-demo.vercel.app/';
+const portalUrl = process.env.LKN_PORTAL_PUBLIC_URL || 'https://lkn-kundenportal.vercel.app/';
 const safe = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function emailHtml() {
@@ -34,49 +34,93 @@ export async function enqueueAdminDocumentNotifications(sql, { documentId, clien
   return { enabled: true, queued: recipients.length, reason: recipients.length ? 'pending-delivery' : 'no-verified-client-email' };
 }
 
-export async function dispatchDocumentNotifications(sql, documentId) {
-  if (!process.env.RESEND_API_KEY || !process.env.LKN_VERIFIED_SENDER) {
-    return { configured: false, sent: 0, pending: true };
+
+function hasSmtp(){
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER &&
+    process.env.SMTP_PASSWORD && process.env.LKN_VERIFIED_SENDER);
+}
+function hasResend(){
+  return Boolean(process.env.RESEND_API_KEY && process.env.LKN_VERIFIED_SENDER);
+}
+async function sendWithSmtp(note) {
+  const nodemailer = (await import('nodemailer')).default;
+  const port = Number(process.env.SMTP_PORT || '587');
+  if (![465,587].includes(port)) throw new Error('Unsupported SMTP port');
+  const transport = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    requireTLS: port === 587,
+    auth: {user:process.env.SMTP_USER,password:process.env.SMTP_PASSWORD},
+    connectionTimeout:8000,
+    greetingTimeout:8000,
+    socketTimeout:12000,
+    tls: {rejectUnauthorized:true}
+  });
+  try {
+    const info = await transport.sendMail({
+      from: process.env.LKN_VERIFIED_SENDER,
+      to: note.recipient_email,
+      subject: 'Neue Dokumente in Ihrem LKN-Kundenportal',
+      html: emailHtml(),
+      text: 'In Ihrem LKN-Kundenportal wurden neue Dokumente hinterlegt. Melden Sie sich unter '+portalUrl+' an, um diese sicher einzusehen. Es werden keine Dokumente per E-Mail verschickt.',
+      messageId: '<'+note.id+'@lkn-group.ch>'
+    });
+    if (!info.accepted?.length) throw new Error('SMTP recipient not accepted');
+    return String(info.messageId || 'smtp:'+note.id);
+  } finally {
+    transport.close();
   }
-  const pending = await sql.query(
+}
+async function sendWithResend(note) {
+  const response = await fetch('https://api.resend.com/emails',{
+    method:'POST',
+    headers:{
+      'Authorization':'Bearer '+process.env.RESEND_API_KEY,
+      'Content-Type':'application/json',
+      'Idempotency-Key':note.id
+    },
+    body:JSON.stringify({
+      from:process.env.LKN_VERIFIED_SENDER,
+      to:[note.recipient_email],
+      subject:'Neue Dokumente in Ihrem LKN-Kundenportal',
+      html:emailHtml(),
+      text:'Neue Dokumente wurden in Ihrem LKN-Kundenportal hinterlegt. Melden Sie sich unter '+portalUrl+' an.'
+    }),
+    signal:AbortSignal.timeout(8000)
+  });
+  const result=await response.json().catch(()=>({}));
+  if (!response.ok || !result.id) throw new Error('Email API did not acknowledge send');
+  return String(result.id);
+}
+export async function dispatchDocumentNotifications(sql,documentId) {
+  if (!hasSmtp() && !hasResend()) return {configured:false,sent:0,pending:true};
+  const pending=await sql.query(
     "SELECT id,recipient_email FROM public.portal_notifications WHERE document_id=$1 AND (status IN ('pending','failed') OR (status='sending' AND processing_at<now()-interval '15 minutes')) AND attempts<5 ORDER BY created_at LIMIT 20",
     [documentId]
   );
-  let sent = 0;
-  for (const note of pending) {
-    const locked = await sql.query(
+  let sent=0;
+  for(const note of pending){
+    const locked=await sql.query(
       "UPDATE public.portal_notifications SET status='sending',processing_at=now(),attempts=attempts+1 WHERE id=$1 AND (status IN ('pending','failed') OR (status='sending' AND processing_at<now()-interval '15 minutes')) AND attempts<5 RETURNING id",
       [note.id]
     );
-    if (!locked.length) continue;
-    try {
-      const response = await fetch('https://api.resend.com/emails',{
-        method:'POST',
-        headers:{'Authorization':'Bearer '+process.env.RESEND_API_KEY,'Content-Type':'application/json','Idempotency-Key':note.id},
-        body:JSON.stringify({
-          from:process.env.LKN_VERIFIED_SENDER,
-          to:[note.recipient_email],
-          subject:'Neue Dokumente in Ihrem LKN-Kundenportal',
-          html:emailHtml()
-        }),
-        signal:AbortSignal.timeout(8000)
-      });
-      const result = await response.json().catch(()=>({}));
-      if (!response.ok || !result.id) throw new Error('E-Mail-Provider hat die Anfrage nicht bestätigt');
-      await sql.query("UPDATE public.portal_notifications SET status='sent',provider_message_id=$2,sent_at=now(),last_error=NULL WHERE id=$1",[note.id,String(result.id)]);
-      sent += 1;
-    } catch {
-      await sql.query("UPDATE public.portal_notifications SET status='failed',last_error='Versand nicht bestätigt' WHERE id=$1",[note.id]);
+    if(!locked.length)continue;
+    try{
+      const id=hasSmtp()?await sendWithSmtp(note):await sendWithResend(note);
+      await sql.query("UPDATE public.portal_notifications SET status='sent',provider_message_id=$2,sent_at=now(),last_error=NULL WHERE id=$1",[note.id,id]);
+      sent+=1;
+    }catch{
+      await sql.query("UPDATE public.portal_notifications SET status='failed',last_error='Versand nicht bestätigt',processing_at=NULL WHERE id=$1",[note.id]);
     }
   }
-  return { configured:true,sent,pending:pending.length>sent };
+  return {configured:true,sent,pending:pending.length>sent};
 }
-
 export async function dispatchPendingNotifications(limit=20) {
-  if (!process.env.RESEND_API_KEY || !process.env.LKN_VERIFIED_SENDER) return {configured:false,sent:0};
+  if (!hasSmtp() && !hasResend()) return {configured:false,sent:0};
   const sql=db();
   const documents = await sql.query(
-    "SELECT DISTINCT document_id FROM public.portal_notifications WHERE status IN ('pending','failed') AND attempts<5 ORDER BY document_id LIMIT $1",
+    "SELECT DISTINCT document_id FROM public.portal_notifications WHERE (status IN ('pending','failed') OR (status='sending' AND processing_at<now()-interval '15 minutes')) AND attempts<5 ORDER BY document_id LIMIT $1",
     [limit]
   );
   let sent=0;

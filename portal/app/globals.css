@@ -35,7 +35,7 @@
 .stats strong.sm{overflow-wrap:anywhere}
 @media(max-width:600px){.adminSelector{align-items:stretch;flex-direction:column}.adminSelector label,.adminSelector select,.adminSelector>span{width:100%}.adminSelector select{flex:none}}
 
-/* Pilot branding and administrator 2FA */
+/* Portal branding and administrator 2FA */
 .portalLogo{width:64px;height:60px;object-fit:contain;display:block}
 .portalTitle{font-weight:800;color:var(--navy);letter-spacing:.16em;font-size:11px}
 .backWebsite{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:1px solid #b9cadf;border-radius:8px;background:#fff;text-decoration:none;color:var(--navy)!important;font-weight:800}
