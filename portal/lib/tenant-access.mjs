@@ -17,3 +17,10 @@ export function decideTenantScope({ isAdmin, assignedClientId, requestedClientId
     return { allowed: false, status: 403, error: 'Zugriff verweigert' };
   return { allowed: true, clientId: assignedClientId };
 }
+
+/** Refuse any document whose object key is not scoped to its metadata client. */
+export function objectKeyBelongsToClient(objectKey, clientId) {
+  return typeof objectKey === 'string' && typeof clientId === 'string' &&
+    UUID.test(clientId) && objectKey.startsWith(clientId + '/') &&
+    !objectKey.includes('..') && !objectKey.includes('\\');
+}
