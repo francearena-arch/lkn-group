@@ -4,5 +4,8 @@
       "path": "/api/internal/notifications",
       "schedule": "0 6 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }
