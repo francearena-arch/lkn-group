@@ -20,7 +20,7 @@ try {
   if(!body.equals(bytes))throw Error('SMOKE: storage byte mismatch');
   console.log('SMOKE STORAGE: UPLOAD DOWNLOAD BYTES PASS');
 
-  const users=await sql.query("SELECT user_id,client_id FROM public.portal_memberships ORDER BY created_at LIMIT 20");
+  const users=await sql.query("SELECT user_id,client_id FROM public.portal_memberships WHERE role='client' ORDER BY created_at LIMIT 20");
   const seen=new Map();
   for(const u of users){
     const docs=await sql.query("SELECT d.client_id,d.id FROM public.portal_documents d JOIN public.portal_memberships m ON m.client_id=d.client_id JOIN public.portal_clients c ON c.id=d.client_id WHERE m.user_id=$1 AND c.status='active'",[u.user_id]);
