@@ -1,6 +1,7 @@
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { db, requirePortalUser, resolveClientAccess, reject, checkSameOrigin } from '../../../lib/portal';
 import { storageClient, BUCKET } from '../../../lib/storage';
+import { objectKeyBelongsToClient } from '../../../lib/tenant-access.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,11 +34,11 @@ export async function GET(request) {
     if (!access.ok) return reject(access.status, access.error);
 
     const documents = await sql.query(
-      "SELECT id,title,category,mime_type,size_bytes,created_at,(object_key IS NOT NULL) AS downloadable FROM public.portal_documents WHERE client_id=$1 ORDER BY created_at DESC LIMIT 100",
+      "SELECT id,title,category,mime_type,size_bytes,created_at,object_key,(object_key IS NOT NULL) AS downloadable FROM public.portal_documents WHERE client_id=$1 ORDER BY created_at DESC LIMIT 100",
       [access.client_id]
     );
     return Response.json({
-      documents,
+      documents: documents.map(({ object_key, ...d }) => ({ ...d, downloadable: Boolean(d.downloadable && objectKeyBelongsToClient(object_key, String(access.client_id))) })),
       clientId: access.client_id,
       clientName: access.name,
       isAdmin: access.isAdmin,
