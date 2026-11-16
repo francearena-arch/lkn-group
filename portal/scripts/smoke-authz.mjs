@@ -37,11 +37,11 @@ async function canDownload(userId, documentId) {
 }
 async function scope(userId) {
   const [admin] = await sql.query("SELECT EXISTS(SELECT 1 FROM public.portal_admins WHERE user_id=$1 AND enabled=true) AS is_admin", [userId]);
-  const [membership] = await sql.query(
+  const memberships = await sql.query(
     "SELECT m.client_id FROM public.portal_memberships m JOIN public.portal_clients c ON c.id=m.client_id WHERE m.user_id=$1 AND m.role='client' AND c.status='active' LIMIT 2",
     [userId]
   );
-  return { isAdmin: admin.is_admin, assignedClientId: membership?.client_id || null };
+  return { isAdmin: admin.is_admin, assignedClientId: memberships.length === 1 ? memberships[0].client_id : null };
 }
 
 const testCases = [
