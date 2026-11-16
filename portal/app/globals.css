@@ -25,3 +25,12 @@
 .uploadForm select{display:block;width:100%;padding:10px;border:1px solid #b9c9df;border-radius:8px;margin-top:6px;background:#fff;color:var(--navy)}
 .uploadForm .primary{margin-top:8px}
 .uploadResult{color:var(--navy)!important;font-size:13px;overflow-wrap:anywhere}
+
+/* LKN portal: explicit admin tenant selection */
+.adminSelector{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:30px 0 10px;padding:20px 22px;border-radius:14px;border:1px solid #b9d2ec;background:#eaf4ff;color:var(--navy)}
+.adminSelector label{font-size:14px;font-weight:800;white-space:nowrap}
+.adminSelector select{flex:1 1 270px;min-width:0;border:1px solid #a9bfd9;border-radius:8px;padding:12px 14px;background:#fff;color:var(--navy);font-size:15px}
+.adminSelector>span{width:100%;font-size:12px;color:#506c8d}
+.stats article{min-width:0}
+.stats strong.sm{overflow-wrap:anywhere}
+@media(max-width:600px){.adminSelector{align-items:stretch;flex-direction:column}.adminSelector label,.adminSelector select,.adminSelector>span{width:100%}.adminSelector select{flex:none}}
