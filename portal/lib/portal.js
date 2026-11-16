@@ -21,7 +21,7 @@ export async function isPortalAdmin(sql, userId) {
 
 export async function getClientMembership(sql, userId) {
   const rows = await sql.query(
-    "SELECT m.client_id, c.name FROM public.portal_memberships m INNER JOIN public.portal_clients c ON c.id=m.client_id WHERE m.user_id=$1 AND c.status='active' ORDER BY m.created_at ASC LIMIT 1",
+    "SELECT m.client_id, c.name FROM public.portal_memberships m INNER JOIN public.portal_clients c ON c.id=m.client_id WHERE m.user_id=$1 AND m.role='client' AND c.status='active' ORDER BY m.created_at ASC LIMIT 2",
     [userId]
   );
   return rows[0] || null;
