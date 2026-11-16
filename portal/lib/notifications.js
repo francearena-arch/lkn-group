@@ -39,13 +39,13 @@ export async function dispatchDocumentNotifications(sql, documentId) {
     return { configured: false, sent: 0, pending: true };
   }
   const pending = await sql.query(
-    "SELECT id,recipient_email FROM public.portal_notifications WHERE document_id=$1 AND (status IN ('pending','failed') OR (status='sending' AND created_at<now()-interval '15 minutes')) AND attempts<5 ORDER BY created_at LIMIT 20",
+    "SELECT id,recipient_email FROM public.portal_notifications WHERE document_id=$1 AND (status IN ('pending','failed') OR (status='sending' AND processing_at<now()-interval '15 minutes')) AND attempts<5 ORDER BY created_at LIMIT 20",
     [documentId]
   );
   let sent = 0;
   for (const note of pending) {
     const locked = await sql.query(
-      "UPDATE public.portal_notifications SET status='sending',attempts=attempts+1 WHERE id=$1 AND (status IN ('pending','failed') OR (status='sending' AND created_at<now()-interval '15 minutes')) AND attempts<5 RETURNING id",
+      "UPDATE public.portal_notifications SET status='sending',processing_at=now(),attempts=attempts+1 WHERE id=$1 AND (status IN ('pending','failed') OR (status='sending' AND processing_at<now()-interval '15 minutes')) AND attempts<5 RETURNING id",
       [note.id]
     );
     if (!locked.length) continue;
