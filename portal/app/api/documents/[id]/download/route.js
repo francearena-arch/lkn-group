@@ -1,3 +1,5 @@
+import {isPortalAdmin} from '../../../../../lib/portal';
+import {isAdminMfaVerified} from '../../../../../lib/mfa';
 import { objectKeyBelongsToClient } from '../../../../../lib/tenant-access.mjs';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { db, requirePortalUser, reject } from '../../../../../lib/portal';
@@ -13,6 +15,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return reject(404, 'Dokument nicht gefunden');
     const sql = db();
+    if((await isPortalAdmin(sql,user.id)) && !(await isAdminMfaVerified(sql,user))) return reject(403,'Zweitfaktor erforderlich');
     const rows = await sql.query(
       "SELECT d.id,d.client_id,d.title,d.object_key,d.mime_type FROM public.portal_documents d INNER JOIN public.portal_clients c ON c.id=d.client_id WHERE d.id=$1 AND c.status='active' AND d.object_key IS NOT NULL AND (EXISTS (SELECT 1 FROM public.portal_admins a WHERE a.user_id=$2 AND a.enabled=true) OR EXISTS (SELECT 1 FROM public.portal_memberships m WHERE m.user_id=$2 AND m.client_id=d.client_id)) LIMIT 1",
       [id,user.id]
