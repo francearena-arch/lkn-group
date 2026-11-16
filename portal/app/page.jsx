@@ -40,7 +40,7 @@ export default function Page() {
   async function prepareMfa(){
     setMfaBusy(true);setError('');
     try{
-      const res=await fetch('/api/admin/mfa/setup',{cache:'no-store'});
+      const res=await fetch('/api/admin/mfa/setup',{method:'POST',cache:'no-store'});
       const data=await res.json();
       if(!res.ok)throw new Error(data.error||'MFA-Einrichtung nicht verfügbar');
       setMfaQr(data.qr);setMfaSecret(data.secret);
